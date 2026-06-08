@@ -1,0 +1,75 @@
+{
+  "negocio": {
+    "nombre": "dentalmond",
+    "tipo": "Negocio",
+    "direccion": "pedro brand ",
+    "referencia": "Frente al parque central",
+    "horario": {
+      "lunes_viernes": "8:00 AM - 6:00 PM",
+      "sabados": "8:00 AM - 2:00 PM",
+      "domingos": "Cerrado"
+    },
+    "dias_libres": [
+      "Domingos",
+      "Feriados nacionales"
+    ],
+    "telefono": "+1-809-000-0000",
+    "instagram": "carlosluis892",
+    "sitio_web": "",
+    "politica_cancelacion": "Cancelaciones con menos de 24h de anticipación pueden incurrir en cargos."
+  },
+  "bot": {
+    "nombre": "Asistente",
+    "plan": "completo"
+  },
+  "servicios": [
+    {
+      "nombre": "Blanqueamiento Dental",
+      "precio": 1000,
+      "moneda": "RD$",
+      "duracion": "30 minutos",
+      "descripcion": ""
+    },
+    {
+      "nombre": "Sonrisa Perfecta",
+      "precio": 500,
+      "moneda": "RD$",
+      "duracion": "30 minutos",
+      "descripcion": ""
+    },
+    {
+      "nombre": "Reparación de Dentadura",
+      "precio": 400,
+      "moneda": "RD$",
+      "duracion": "30 minutos",
+      "descripcion": ""
+    }
+  ],
+  "servicio_estrella": "",
+  "promocion_actual": "",
+  "horarios_citas": {
+    "lunes_viernes": [
+      "8:00 AM",
+      "9:00 AM",
+      "10:00 AM",
+      "11:00 AM",
+      "2:00 PM",
+      "3:00 PM",
+      "4:00 PM",
+      "5:00 PM"
+    ],
+    "sabados": [
+      "8:00 AM",
+      "9:00 AM",
+      "10:00 AM",
+      "11:00 AM"
+    ]
+  },
+  "formas_pago": [
+    "Efectivo",
+    "Tarjeta",
+    "Transferencia"
+  ],
+  "perfil_cliente": "",
+  "preguntas_frecuentes": []
+}

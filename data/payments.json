@@ -1,0 +1,12 @@
+[
+  {
+    "id": "PAY-1780780907541",
+    "nombrePaciente": "caa",
+    "servicio": "kimpiez",
+    "monto": 2500,
+    "formaPago": "Efectivo",
+    "fecha": "6/6/2026",
+    "estado": "pagado",
+    "createdAt": "2026-06-06T21:21:47.542Z"
+  }
+]

@@ -1,0 +1,225 @@
+[
+  {
+    "id": "PAT-1780783441799-798",
+    "nombre": "Carlos Luis",
+    "telefono": "",
+    "jid": null,
+    "cedula": "",
+    "direccion": "",
+    "correo": "",
+    "historialClinico": "",
+    "recetas": [
+      {
+        "uuid": "b931a246-751a-4240-9d74-4232e7078c6a",
+        "dieta": [
+          {
+            "nombre": "Desayuno",
+            "alimentos": "ssssss"
+          }
+        ],
+        "rutina": [
+          {
+            "ejercicio": "Bicicleta estática",
+            "series": 3,
+            "reps": 12,
+            "frecuencia": "sss"
+          }
+        ],
+        "medicamentos": [
+          {
+            "nombre": "sssssss",
+            "dosis": "ssss",
+            "frecuencia": "sss",
+            "duracion": "sss",
+            "notas": "sss"
+          }
+        ],
+        "updatedAt": "2026-06-07T17:43:22.125Z",
+        "qrCode": "data:image/png;base64,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",
+        "verifyUrl": "http://localhost:3000/verify/b931a246-751a-4240-9d74-4232e7078c6a"
+      }
+    ],
+    "laboratorios": [],
+    "diagnosticos": [],
+    "prescripcionActiva": {
+      "uuid": "b931a246-751a-4240-9d74-4232e7078c6a",
+      "dieta": [
+        {
+          "nombre": "Desayuno",
+          "alimentos": "ssssss"
+        }
+      ],
+      "rutina": [
+        {
+          "ejercicio": "Bicicleta estática",
+          "series": 3,
+          "reps": 12,
+          "frecuencia": "sss"
+        }
+      ],
+      "medicamentos": [
+        {
+          "nombre": "sssssss",
+          "dosis": "ssss",
+          "frecuencia": "sss",
+          "duracion": "sss",
+          "notas": "sss"
+        }
+      ],
+      "updatedAt": "2026-06-07T17:43:22.125Z",
+      "qrCode": "data:image/png;base64,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",
+      "verifyUrl": "http://localhost:3000/verify/b931a246-751a-4240-9d74-4232e7078c6a"
+    },
+    "cumplimiento": {}
+  },
+  {
+    "id": "PAT-1780783441800-410",
+    "nombre": "Carlos Luis Rivera",
+    "telefono": "18299931049",
+    "jid": "18299931049@s.whatsapp.net",
+    "cedula": "",
+    "direccion": "",
+    "correo": "",
+    "historialClinico": "",
+    "recetas": [
+      {
+        "uuid": "996e7a88-762e-4cef-b710-369e000d81f6",
+        "dieta": [
+          {
+            "nombre": "Desayuno",
+            "alimentos": "3 huevos, tostada integral, café sin azúcar"
+          },
+          {
+            "nombre": "Almuerzo",
+            "alimentos": "Pechuga de pollo a la plancha, arroz integral, ensalada"
+          },
+          {
+            "nombre": "Cena",
+            "alimentos": "Yogur griego, frutas del bosque"
+          }
+        ],
+        "rutina": [
+          {
+            "ejercicio": "Sentadillas",
+            "series": 4,
+            "reps": 12,
+            "frecuencia": "Diario"
+          },
+          {
+            "ejercicio": "Flexiones de pecho",
+            "series": 3,
+            "reps": 10,
+            "frecuencia": "Diario"
+          },
+          {
+            "ejercicio": "Plancha abdominal",
+            "series": 3,
+            "reps": "45 seg",
+            "frecuencia": "Diario"
+          }
+        ],
+        "medicamentos": [
+          {
+            "nombre": "kzKkj",
+            "dosis": "zkJk",
+            "frecuencia": "JKjkZ",
+            "duracion": "zN",
+            "notas": "zjkz"
+          }
+        ],
+        "updatedAt": "2026-06-07T17:44:40.780Z",
+        "qrCode": "data:image/png;base64,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",
+        "verifyUrl": "http://localhost:3000/verify/996e7a88-762e-4cef-b710-369e000d81f6"
+      }
+    ],
+    "laboratorios": [],
+    "diagnosticos": [],
+    "prescripcionActiva": {
+      "uuid": "996e7a88-762e-4cef-b710-369e000d81f6",
+      "dieta": [
+        {
+          "nombre": "Desayuno",
+          "alimentos": "3 huevos, tostada integral, café sin azúcar"
+        },
+        {
+          "nombre": "Almuerzo",
+          "alimentos": "Pechuga de pollo a la plancha, arroz integral, ensalada"
+        },
+        {
+          "nombre": "Cena",
+          "alimentos": "Yogur griego, frutas del bosque"
+        }
+      ],
+      "rutina": [
+        {
+          "ejercicio": "Sentadillas",
+          "series": 4,
+          "reps": 12,
+          "frecuencia": "Diario"
+        },
+        {
+          "ejercicio": "Flexiones de pecho",
+          "series": 3,
+          "reps": 10,
+          "frecuencia": "Diario"
+        },
+        {
+          "ejercicio": "Plancha abdominal",
+          "series": 3,
+          "reps": "45 seg",
+          "frecuencia": "Diario"
+        }
+      ],
+      "medicamentos": [
+        {
+          "nombre": "kzKkj",
+          "dosis": "zkJk",
+          "frecuencia": "JKjkZ",
+          "duracion": "zN",
+          "notas": "zjkz"
+        }
+      ],
+      "updatedAt": "2026-06-07T17:44:40.780Z",
+      "qrCode": "data:image/png;base64,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",
+      "verifyUrl": "http://localhost:3000/verify/996e7a88-762e-4cef-b710-369e000d81f6"
+    },
+    "cumplimiento": {
+      "2026-06-07": {
+        "dieta": {
+          "0": true,
+          "1": true,
+          "2": true
+        },
+        "rutina": {
+          "0": false
+        },
+        "medicamentos": {
+          "0": true
+        }
+      }
+    }
+  },
+  {
+    "id": "PAT-1780783441800-78",
+    "nombre": "riverita",
+    "telefono": "18097088396",
+    "jid": "18097088396@s.whatsapp.net",
+    "cedula": "",
+    "direccion": "",
+    "correo": "",
+    "historialClinico": "",
+    "recetas": [],
+    "laboratorios": [],
+    "diagnosticos": [],
+    "chatMedico": [
+      {
+        "from": "patient",
+        "patientId": "PAT-1780783441800-78",
+        "text": "hola",
+        "ts": "2026-06-07T16:43:44.183Z"
+      }
+    ],
+    "prescripcionActiva": null,
+    "cumplimiento": {}
+  }
+]

@@ -1,0 +1,143 @@
+﻿[
+    {
+        "id":  "TMP-post-extraccion",
+        "nombre":  "Post-ExtracciÃ³n Dental (CirugÃ­a)",
+        "descripcion":  "Cuidados posteriores a una extracciÃ³n dental o cirugÃ­a oral simple.",
+        "diagnostico":  "Estado post-quirÃºrgico de extracciÃ³n dental.",
+        "medicamentos":  [
+                             {
+                                 "nombre":  "Amoxicilina 500mg",
+                                 "dosis":  "1 cÃ¡psula",
+                                 "frecuencia":  "Cada 8 horas",
+                                 "duracion":  "7 dÃ­as",
+                                 "notas":  "Completar el ciclo completo aunque no sienta dolor."
+                             },
+                             {
+                                 "nombre":  "Ibuprofeno 400mg",
+                                 "dosis":  "1 tableta",
+                                 "frecuencia":  "Cada 8 horas",
+                                 "duracion":  "3 dÃ­as",
+                                 "notas":  "Tomar con alimentos. Ayuda a reducir la inflamaciÃ³n."
+                             }
+                         ],
+        "dieta":  [
+                      {
+                          "nombre":  "Alimentos blandos y frÃ­os (DÃ­a 1 y 2)",
+                          "alimentos":  "Gelatina, helados, yogur, batidos templados, purÃ© de papas frÃ­o. NO usar sorbete/pajilla para succionar."
+                      },
+                      {
+                          "nombre":  "Dieta blanda templada (DÃ­a 3 a 5)",
+                          "alimentos":  "Huevo revuelto, sopa templada, purÃ© de vegetales, pasta suave. Evitar picantes, Ã¡cidos y cosas calientes."
+                      }
+                  ],
+        "rutina":  [
+                       {
+                           "ejercicio":  "Reposo relativo",
+                           "series":  "DÃ­a 1-3",
+                           "reps":  "Completo",
+                           "frecuencia":  "Evitar esfuerzos fÃ­sicos pesados, agacharse o levantar peso."
+                       },
+                       {
+                           "ejercicio":  "Higiene y Enjuague suave",
+                           "series":  "DÃ­a 2-7",
+                           "reps":  "3 veces al dÃ­a",
+                           "frecuencia":  "No escupir fuerte ni enjuagar el primer dÃ­a. Al segundo dÃ­a, hacer enjuagues muy suaves con agua tibia y sal."
+                       }
+                   ],
+        "creadoEn":  "2026-06-07T18:00:00.000Z"
+    },
+    {
+        "id":  "TMP-ajuste-ortodoncia",
+        "nombre":  "Ajuste de Ortodoncia (Brackets)",
+        "descripcion":  "Alivio de molestias y cuidados post-ajuste de brackets.",
+        "diagnostico":  "Ajuste periÃ³dico de aparatologÃ­a fija.",
+        "medicamentos":  [
+                             {
+                                 "nombre":  "Paracetamol 500mg",
+                                 "dosis":  "1 tableta",
+                                 "frecuencia":  "Cada 8 horas",
+                                 "duracion":  "3 dÃ­as",
+                                 "notas":  "Tomar solo en caso de dolor o molestia intensa."
+                             }
+                         ],
+        "dieta":  [
+                      {
+                          "nombre":  "Dieta blanda de transiciÃ³n (DÃ­a 1-3)",
+                          "alimentos":  "Caldos, sopas licuadas, purÃ©s, yogur, avena. Evitar masticar alimentos duros."
+                      },
+                      {
+                          "nombre":  "RestricciÃ³n de alimentos duros y pegajosos",
+                          "alimentos":  "Evitar comer chicles, caramelos pegajosos, nueces, manzanas enteras a mordiscos, pan tostado muy duro."
+                      }
+                  ],
+        "rutina":  [
+                       {
+                           "ejercicio":  "Higiene bucal minuciosa",
+                           "series":  "Post-comida",
+                           "reps":  "Cepillado completo",
+                           "frecuencia":  "Utilizar cepillos interdentales o hilo especial (Superfloss) para retirar restos de comida entre brackets."
+                       }
+                   ],
+        "creadoEn":  "2026-06-07T18:00:00.000Z"
+    },
+    {
+        "id":  "TMP-endodoncia",
+        "nombre":  "Endodoncia (Tratamiento de Canal)",
+        "descripcion":  "Recomendaciones despuÃ©s de realizar un tratamiento de canal.",
+        "diagnostico":  "Pieza tratada endodÃ³nticamente en espera de rehabilitaciÃ³n.",
+        "medicamentos":  [
+                             {
+                                 "nombre":  "Dexketoprofeno 25mg",
+                                 "dosis":  "1 tableta",
+                                 "frecuencia":  "Cada 8 horas",
+                                 "duracion":  "3 dÃ­as",
+                                 "notas":  "Para dolor o molestia moderada. No tomar con el estÃ³mago vacÃ­o."
+                             }
+                         ],
+        "dieta":  [
+                      {
+                          "nombre":  "Evitar masticar del lado tratado",
+                          "alimentos":  "Masticar alimentos blandos Ãºnicamente del lado opuesto de la boca para evitar fracturas dentales antes de la restauraciÃ³n final."
+                      }
+                  ],
+        "rutina":  [
+                       {
+                           "ejercicio":  "Cepillado cuidadoso",
+                           "series":  "3 veces al dÃ­a",
+                           "reps":  "Suave",
+                           "frecuencia":  "Cepillar el diente tratado suavemente. No usar hilo dental con fuerza en la corona provisional."
+                       }
+                   ],
+        "creadoEn":  "2026-06-07T18:00:00.000Z"
+    },
+    {
+        "id":  "TMP-profilaxis",
+        "nombre":  "Profilaxis y Curetaje Dental",
+        "descripcion":  "Recomendaciones post-limpieza bucal profunda o raspado.",
+        "diagnostico":  "Mantenimiento periodontal post-profilaxis.",
+        "medicamentos":  [
+                             {
+                                 "nombre":  "Clorhexidina 0.12% (Colutorio)",
+                                 "dosis":  "15 ml (Enjuague)",
+                                 "frecuencia":  "Cada 12 horas",
+                                 "duracion":  "7 dÃ­as",
+                                 "notes":  "Enjuagarse durante 1 minuto despuÃ©s del cepillado. No ingerir alimentos en los siguientes 30 minutos."
+                             }
+                         ],
+        "dieta":  [
+                      {
+                          "nombre":  "Evitar tinciones y Ã¡cidos (24 horas)",
+                          "alimentos":  "No consumir cafÃ©, tÃ©, vino tinto, refrescos oscuros, ni comidas con muchos colorantes. Evitar cÃ­tricos si hay sensibilidad."
+                      }
+                  ],
+        "rutina":  [
+                       {
+                           "ejercicio":  "Cepillado ultrasuave",
+                           "series":  "3 veces al dÃ­a",
+                           "reps":  "Cerdas suaves",
+                           "frecuencia":  "Cepillar con movimientos circulares suaves. Puede presentarse leve sangrado las primeras 24 horas."
+                       }
+                   ],
+        "creadoEn":  "2026-06-07T18:00:00.000Z"
+    }
+]

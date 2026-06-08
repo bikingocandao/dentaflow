@@ -1,0 +1,58 @@
+[
+  {
+    "id": "APT-1779012839479",
+    "jid": null,
+    "telefono": "",
+    "nombre": "Carlos Luis",
+    "servicio": "Servicio 1",
+    "fecha": "hoy",
+    "hora": "10:00 AM",
+    "createdAt": "2026-05-17T10:13:59.480Z",
+    "status": "confirmada",
+    "reminderSent": false,
+    "source": "chatbot"
+  },
+  {
+    "id": "APT-1779012867962",
+    "jid": null,
+    "telefono": "",
+    "nombre": "Carlos Luis",
+    "servicio": "Servicio 1",
+    "fecha": "hoy",
+    "hora": "10:00 AM",
+    "createdAt": "2026-05-17T10:14:27.962Z",
+    "status": "asistida",
+    "reminderSent": false,
+    "updatedAt": "2026-06-06T14:05:08.047Z",
+    "source": "chatbot"
+  },
+  {
+    "id": "APT-1780751590590",
+    "jid": "18299931049@s.whatsapp.net",
+    "nombre": "Carlos Luis Rivera",
+    "servicio": "Registro general",
+    "fecha": "2026-06-06",
+    "hora": "09:13 a. m.",
+    "telefono": "18299931049",
+    "createdAt": "2026-06-06T13:13:10.590Z",
+    "status": "asistida",
+    "source": "manual",
+    "reminderSent": true,
+    "updatedAt": "2026-06-06T13:16:32.020Z"
+  },
+  {
+    "id": "APT-1780779966765",
+    "jid": "18097088396@s.whatsapp.net",
+    "nombre": "riverita",
+    "servicio": "Registro general",
+    "fecha": "2026-06-06",
+    "hora": "05:06 p. m.",
+    "telefono": "18097088396",
+    "correo": "",
+    "createdAt": "2026-06-06T21:06:06.765Z",
+    "status": "asistida",
+    "source": "manual",
+    "reminderSent": true,
+    "updatedAt": "2026-06-06T21:06:15.712Z"
+  }
+]

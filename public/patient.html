@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Mi Plan de Hoy — DentaFlow</title>
+  <meta name="description" content="Tu plan de tratamiento diario prescrito por tu médico.">
+  <meta name="theme-color" content="#0a0a0f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DentaFlow">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3022/3022579.png">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="/config.js"></script>
+  <script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #111118;
+      --bg3: #1a1a26;
+      --card: rgba(255,255,255,.04);
+      --card-hover: rgba(255,255,255,.07);
+      --border: rgba(255,255,255,.08);
+      --border-active: rgba(99,179,237,.4);
+      --text1: #f0f4ff;
+      --text2: #8b92a8;
+      --text3: #555d78;
+      --blue: #63b3ed;
+      --blue-glow: rgba(99,179,237,.2);
+      --green: #68d391;
+      --green-glow: rgba(104,211,145,.2);
+      --green-card: rgba(104,211,145,.08);
+      --amber: #f6ad55;
+      --purple: #b794f4;
+      --red: #fc8181;
+    }
+
+    html, body {
+      height: 100%; background: var(--bg); color: var(--text1);
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased; overscroll-behavior: none;
+    }
+
+    /* ─── LOADER ─── */
+    #loader { position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);gap:16px; }
+    .loader-logo { font-size:44px;animation:pulse 1.5s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.9)} }
+    .loader-text { font-size:13px;color:var(--text2);font-weight:500;letter-spacing:.5px; }
+
+    /* ─── WRAPPER ─── */
+    #app { display:none;min-height:100vh;padding-bottom:120px; }
+
+    /* ─── HEADER ─── */
+    .header {
+      position:sticky;top:0;z-index:10;
+      background:rgba(10,10,15,.95);
+      backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+      border-bottom:1px solid var(--border);
+      padding:14px 18px 12px;
+    }
+    .header-top { display:flex;justify-content:space-between;align-items:center;margin-bottom:10px; }
+    .header-brand { display:flex;align-items:center;gap:8px; }
+    .header-brand-icon { font-size:20px; }
+    .header-brand-name { font-size:15px;font-weight:800;color:var(--text1);letter-spacing:-.3px; }
+    .header-date { font-size:11px;color:var(--text3);font-weight:500; }
+
+    /* Doctor online badge */
+    .doctor-badge {
+      display:flex;align-items:center;gap:6px;
+      font-size:11px;font-weight:600;
+      padding:4px 10px;border-radius:20px;
+      background:rgba(255,255,255,.06);
+      color:var(--text2);
+      transition:all .3s;
+    }
+    .doctor-badge.online { background:rgba(104,211,145,.12);color:var(--green); }
+    .doctor-badge::before {
+      content:'';width:6px;height:6px;border-radius:50%;
+      background:var(--text3);transition:background .3s;
+    }
+    .doctor-badge.online::before { background:var(--green);box-shadow:0 0 6px var(--green-glow); }
+
+    /* ─── COMPLIANCE RING ─── */
+    .compliance-bar-wrap { display:flex;align-items:center;gap:14px; }
+    .compliance-ring-svg { flex-shrink:0; }
+    .compliance-ring-track { fill:none;stroke:rgba(255,255,255,.06);stroke-width:5; }
+    .compliance-ring-fill {
+      fill:none;stroke:var(--green);stroke-width:5;stroke-linecap:round;
+      stroke-dasharray:100 100;stroke-dashoffset:100;
+      transform:rotate(-90deg);transform-origin:50% 50%;
+      transition:stroke-dashoffset .6s cubic-bezier(.4,0,.2,1),stroke .4s;
+    }
+    .compliance-ring-text { font-size:10px;font-weight:700;fill:var(--green);text-anchor:middle;dominant-baseline:middle; }
+    .compliance-info { flex:1; }
+    .compliance-label { font-size:12px;font-weight:600;color:var(--text1);margin-bottom:2px; }
+    .compliance-sub { font-size:11px;color:var(--text2); }
+
+    /* ─── PATIENT BANNER ─── */
+    .patient-banner { padding:18px 18px 6px; }
+    .patient-greeting { font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.8px; }
+    .patient-name { font-size:22px;font-weight:800;color:var(--text1);margin-top:2px;letter-spacing:-.5px; }
+
+    /* ─── ACTION BUTTONS BAR ─── */
+    .action-buttons-bar {
+      display:flex;gap:10px;padding:12px 18px 6px;overflow-x:auto;
+      scrollbar-width:none;-ms-overflow-style:none;
+    }
+    .action-buttons-bar::-webkit-scrollbar { display:none; }
+    .action-btn {
+      display:flex;align-items:center;gap:6px;
+      padding:8px 14px;border-radius:20px;
+      font-size:11px;font-weight:700;white-space:nowrap;
+      cursor:pointer;border:1px solid var(--border);
+      background:rgba(255,255,255,.05);color:var(--text1);
+      transition:all .2s;flex-shrink:0;
+    }
+    .action-btn:hover { background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.16); }
+    .action-btn:active { transform:scale(.95); }
+    .action-btn.primary {
+      background:linear-gradient(135deg,rgba(26,110,245,.25),rgba(13,71,161,.2));
+      border-color:rgba(26,110,245,.35);color:var(--blue);
+    }
+    .action-btn.green {
+      background:rgba(104,211,145,.1);border-color:rgba(104,211,145,.25);color:var(--green);
+    }
+    .action-btn.amber {
+      background:rgba(246,173,85,.1);border-color:rgba(246,173,85,.25);color:var(--amber);
+    }
+
+    /* ─── PLAN UPDATED BANNER ─── */
+    #plan-updated-banner {
+      display:none;margin:12px 18px;border-radius:14px;
+      background:linear-gradient(135deg,rgba(26,110,245,.18),rgba(13,71,161,.1));
+      border:1px solid rgba(26,110,245,.3);
+      padding:14px 16px;
+      animation:slideIn .4s ease;
+    }
+    #plan-updated-banner.show { display:flex;align-items:center;gap:12px; }
+    @keyframes slideIn { from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)} }
+    .pub-icon { font-size:24px; }
+    .pub-text { flex:1; }
+    .pub-title { font-size:13px;font-weight:700;color:#63b3ed; }
+    .pub-sub { font-size:11px;color:var(--text2);margin-top:2px; }
+    .pub-reload { font-size:11px;font-weight:700;color:#fff;background:#1a6ef5;border:none;padding:6px 14px;border-radius:20px;cursor:pointer; }
+
+    /* ─── SECTION ─── */
+    .section-wrap { padding:0 18px;margin-top:18px; }
+    .section-title-row { display:flex;align-items:center;gap:8px;margin-bottom:12px; }
+    .section-icon { font-size:18px; }
+    .section-label { font-size:13px;font-weight:700;color:var(--text1);flex:1; }
+    .section-badge { font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(255,255,255,.06);color:var(--text2); }
+    .section-badge.done { background:var(--green-card);color:var(--green); }
+
+    /* ─── PLAN CARD ─── */
+    .plan-card {
+      background:var(--card);border:1px solid var(--border);
+      border-radius:16px;padding:0;overflow:hidden;margin-bottom:10px;
+      transition:border-color .2s,background .2s;
+    }
+    .plan-card.checked { background:var(--green-card);border-color:rgba(104,211,145,.2); }
+    .plan-card-inner {
+      display:flex;align-items:center;gap:14px;padding:14px 16px;
+      cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;
+    }
+    .plan-card-inner:active { opacity:.7; }
+    .check-circle {
+      width:26px;height:26px;flex-shrink:0;border-radius:50%;
+      border:2px solid var(--border-active);
+      display:flex;align-items:center;justify-content:center;
+      transition:all .25s cubic-bezier(.34,1.56,.64,1);background:transparent;
+    }
+    .plan-card.checked .check-circle { background:var(--green);border-color:var(--green);box-shadow:0 0 14px var(--green-glow);transform:scale(1.08); }
+    .check-circle svg { width:13px;height:13px;opacity:0;transition:opacity .2s; }
+    .plan-card.checked .check-circle svg { opacity:1; }
+    .plan-card-body { flex:1; }
+    .plan-card-title { font-size:14px;font-weight:600;color:var(--text1);transition:color .2s; }
+    .plan-card.checked .plan-card-title { color:var(--green); }
+    .plan-card-sub { font-size:12px;color:var(--text2);margin-top:2px;line-height:1.4; }
+    .plan-card-tag { font-size:10px;font-weight:700;letter-spacing:.3px;padding:3px 9px;border-radius:20px;background:rgba(99,179,237,.1);color:var(--blue);flex-shrink:0; }
+    .plan-card-tag.rutina { background:rgba(183,148,244,.1);color:var(--purple); }
+    .plan-card-tag.meds { background:rgba(183,148,244,.15);color:var(--purple); }
+
+    /* ─── EMPTY STATE ─── */
+    .empty-state { text-align:center;padding:36px 20px;color:var(--text3); }
+    .empty-state-icon { font-size:36px;margin-bottom:10px;opacity:.5; }
+    .empty-state-text { font-size:13px; }
+
+    /* ─── COMPLETED BANNER ─── */
+    .completed-banner {
+      margin:16px 18px;border-radius:16px;
+      background:linear-gradient(135deg,rgba(104,211,145,.12),rgba(72,187,120,.06));
+      border:1px solid rgba(104,211,145,.2);
+      padding:22px 18px;text-align:center;display:none;
+    }
+    .completed-banner.show { display:block; }
+    .completed-banner-icon { font-size:40px;margin-bottom:8px; }
+    .completed-banner-title { font-size:16px;font-weight:700;color:var(--green); }
+    .completed-banner-sub { font-size:12px;color:var(--text2);margin-top:4px; }
+
+    /* ─── NO PLAN ─── */
+    #no-plan { display:none;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;padding:40px 24px;text-align:center;gap:12px; }
+    #no-plan.show { display:flex; }
+    .no-plan-icon { font-size:56px;opacity:.3; }
+    .no-plan-title { font-size:18px;font-weight:700;color:var(--text1); }
+    .no-plan-sub { font-size:13px;color:var(--text2);max-width:260px;line-height:1.5; }
+
+    /* ─── CHAT FLOTANTE ─── */
+    #chat-fab {
+      position:fixed;bottom:24px;right:20px;z-index:50;
+      width:54px;height:54px;border-radius:50%;
+      background:linear-gradient(135deg,#1a6ef5,#0d47a1);
+      border:none;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 4px 20px rgba(26,110,245,.5);
+      transition:transform .2s,box-shadow .2s;
+      font-size:22px;
+    }
+    #chat-fab:active { transform:scale(.92); }
+    #chat-fab .fab-badge {
+      position:absolute;top:-3px;right:-3px;
+      width:18px;height:18px;border-radius:50%;
+      background:#fc8181;border:2px solid var(--bg);
+      font-size:9px;font-weight:800;color:#fff;
+      display:none;align-items:center;justify-content:center;
+    }
+    #chat-fab .fab-badge.show { display:flex; }
+
+    /* ─── CHAT PANEL ─── */
+    #chat-panel {
+      position:fixed;inset:0;z-index:60;
+      background:var(--bg2);
+      display:flex;flex-direction:column;
+      transform:translateY(100%);
+      transition:transform .35s cubic-bezier(.4,0,.2,1);
+    }
+    #chat-panel.open { transform:translateY(0); }
+
+    .chat-panel-header {
+      display:flex;align-items:center;gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--border);
+      background:var(--bg);
+    }
+    .chat-panel-avatar {
+      width:40px;height:40px;border-radius:50%;
+      background:linear-gradient(135deg,#1a6ef5,#0d47a1);
+      display:flex;align-items:center;justify-content:center;
+      font-size:18px;flex-shrink:0;
+    }
+    .chat-panel-title { font-size:14px;font-weight:700;color:var(--text1); }
+    .chat-panel-sub { font-size:11px;color:var(--text2);margin-top:1px; }
+    .chat-panel-close {
+      margin-left:auto;width:36px;height:36px;border-radius:50%;
+      background:rgba(255,255,255,.06);border:none;
+      color:var(--text2);font-size:18px;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+    }
+
+    .chat-messages {
+      flex:1;overflow-y:auto;padding:16px 18px;
+      display:flex;flex-direction:column;gap:10px;
+    }
+    .chat-msg {
+      max-width:78%;padding:10px 14px;border-radius:18px;
+      font-size:13px;line-height:1.5;animation:msgIn .25s ease;
+    }
+    @keyframes msgIn { from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)} }
+    .chat-msg.from-doctor {
+      background:rgba(26,110,245,.18);border:1px solid rgba(26,110,245,.25);
+      color:var(--text1);align-self:flex-start;border-bottom-left-radius:4px;
+    }
+    .chat-msg.from-patient {
+      background:rgba(104,211,145,.12);border:1px solid rgba(104,211,145,.2);
+      color:var(--text1);align-self:flex-end;border-bottom-right-radius:4px;
+    }
+    .chat-msg-sender { font-size:10px;font-weight:700;margin-bottom:3px;opacity:.7; }
+    .chat-msg-time { font-size:9px;color:var(--text3);margin-top:4px;text-align:right; }
+    .chat-empty { text-align:center;color:var(--text3);font-size:12px;padding:40px 20px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px; }
+    .chat-empty-icon { font-size:40px;opacity:.3; }
+
+    .chat-input-wrap {
+      padding:12px 16px;border-top:1px solid var(--border);
+      background:var(--bg);
+      display:flex;gap:10px;align-items:flex-end;
+    }
+    .chat-textarea {
+      flex:1;background:rgba(255,255,255,.06);border:1px solid var(--border);
+      border-radius:20px;padding:10px 16px;font-size:13px;color:var(--text1);
+      font-family:'Inter',sans-serif;resize:none;max-height:120px;min-height:42px;
+      outline:none;transition:border-color .2s;
+    }
+    .chat-textarea:focus { border-color:rgba(26,110,245,.5); }
+    .chat-textarea::placeholder { color:var(--text3); }
+    .chat-send {
+      width:42px;height:42px;border-radius:50%;flex-shrink:0;
+      background:linear-gradient(135deg,#1a6ef5,#0d47a1);
+      border:none;color:#fff;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;font-size:18px;
+      transition:transform .15s,opacity .15s;
+    }
+    .chat-send:active { transform:scale(.9); }
+    .chat-send:disabled { opacity:.4; }
+
+    /* typing indicator */
+    .typing-indicator { display:none;align-self:flex-start;padding:10px 14px;border-radius:18px;background:rgba(255,255,255,.06);border:1px solid var(--border);font-size:12px;color:var(--text3);animation:msgIn .25s ease; }
+    .typing-indicator.show { display:block; }
+    .typing-dots span { display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--text3);margin:0 1px;animation:blink 1.2s infinite; }
+    .typing-dots span:nth-child(2){animation-delay:.2s}.typing-dots span:nth-child(3){animation-delay:.4s}
+    @keyframes blink { 0%,80%,100%{opacity:.2}40%{opacity:1} }
+
+    /* ─── DIVIDER ─── */
+    .divider { height:1px;background:var(--border);margin:6px 18px 0; }
+
+    /* ─── TOAST ─── */
+    #toast {
+      position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(80px);
+      background:var(--bg3);border:1px solid var(--border);
+      padding:10px 20px;border-radius:24px;
+      font-size:12px;font-weight:600;color:var(--text1);
+      white-space:nowrap;z-index:99;
+      transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s;
+      opacity:0;box-shadow:0 8px 32px rgba(0,0,0,.4);
+    }
+    #toast.show { transform:translateX(-50%) translateY(0);opacity:1; }
+
+    /* ─── MODAL BASE ─── */
+    .modal-overlay {
+      position:fixed;inset:0;z-index:80;
+      background:rgba(5,5,10,0.92);backdrop-filter:blur(10px);
+      display:none;flex-direction:column;align-items:center;justify-content:center;
+      padding:20px;animation:fadeOverlay .3s ease;
+    }
+    .modal-overlay.open { display:flex; }
+    @keyframes fadeOverlay { from{opacity:0}to{opacity:1} }
+    .modal-box {
+      background:var(--bg2);border:1px solid var(--border);
+      border-radius:24px;width:100%;max-width:360px;
+      padding:28px 22px;text-align:center;
+      box-shadow:0 20px 60px rgba(0,0,0,.7);
+      animation:modalIn .35s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes modalIn { from{opacity:0;transform:scale(.92) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)} }
+    .modal-title { font-size:16px;font-weight:800;color:var(--text1);margin-bottom:6px; }
+    .modal-sub { font-size:12px;color:var(--text2);margin-bottom:20px;line-height:1.5; }
+
+    /* ─── QR RECETA MODAL ─── */
+    #modal-rx-qr .qr-frame {
+      width:220px;height:220px;margin:0 auto 16px;
+      background:#fff;border-radius:16px;padding:12px;
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 0 40px rgba(99,179,237,.15);
+      position:relative;
+    }
+    #modal-rx-qr .qr-frame img { width:100%;height:100%;border-radius:6px; }
+    .qr-verified-tag {
+      display:inline-flex;align-items:center;gap:6px;
+      background:rgba(104,211,145,.12);border:1px solid rgba(104,211,145,.25);
+      color:var(--green);font-size:11px;font-weight:700;
+      padding:6px 14px;border-radius:20px;margin-bottom:20px;
+    }
+    .modal-btn-row { display:flex;gap:10px; }
+    .modal-btn {
+      flex:1;height:44px;border-radius:12px;
+      font-size:13px;font-weight:700;cursor:pointer;border:none;
+      transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;
+    }
+    .modal-btn.secondary {
+      background:rgba(255,255,255,.07);border:1px solid var(--border);color:var(--text2);
+    }
+    .modal-btn.secondary:hover { background:rgba(255,255,255,.12); }
+    .modal-btn.primary-blue {
+      background:linear-gradient(135deg,#1a6ef5,#0d47a1);color:#fff;
+      box-shadow:0 4px 16px rgba(26,110,245,.35);
+    }
+
+    /* ─── PWA INSTALL MODAL ─── */
+    #modal-pwa .phone-mockup {
+      width:120px;margin:0 auto 16px;
+      border:3px solid rgba(255,255,255,.15);border-radius:24px;
+      padding:8px 6px;background:rgba(255,255,255,.04);
+      position:relative;overflow:hidden;
+    }
+    #modal-pwa .phone-screen {
+      background:var(--bg3);border-radius:18px;padding:8px;
+      font-size:9px;color:var(--text2);text-align:left;
+    }
+    #modal-pwa .phone-icon {
+      width:32px;height:32px;border-radius:8px;
+      background:linear-gradient(135deg,#1a6ef5,#7c3aed);
+      margin-bottom:4px;display:flex;align-items:center;justify-content:center;
+      font-size:16px;
+    }
+    #modal-pwa .phone-name { font-size:8px;font-weight:700;color:var(--text1); }
+    #modal-pwa .phone-home-indicator {
+      width:40px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;
+      margin:8px auto 0;
+    }
+    .install-arrow {
+      font-size:28px;margin-bottom:8px;
+      animation:bounceDown .8s ease-in-out infinite alternate;
+    }
+    @keyframes bounceDown { from{transform:translateY(0)}to{transform:translateY(6px)} }
+    #pwa-qr-img {
+      width:180px;height:180px;background:#fff;border-radius:12px;
+      padding:10px;margin:0 auto 14px;display:block;
+      box-shadow:0 0 30px rgba(99,179,237,.12);
+    }
+    .pwa-steps { text-align:left;margin-bottom:20px; }
+    .pwa-step {
+      display:flex;align-items:flex-start;gap:10px;
+      font-size:12px;color:var(--text2);margin-bottom:8px;
+      background:rgba(255,255,255,.03);padding:8px 10px;border-radius:10px;
+    }
+    .pwa-step-num {
+      width:20px;height:20px;border-radius:50%;flex-shrink:0;
+      background:linear-gradient(135deg,#1a6ef5,#7c3aed);
+      font-size:10px;font-weight:700;color:#fff;
+      display:flex;align-items:center;justify-content:center;margin-top:1px;
+    }
+    .pwa-step-text { line-height:1.4; }
+    .pwa-step-text strong { color:var(--text1); }
+
+    /* ─── INSTALL BANNER ─── */
+    #install-banner {
+      margin:10px 18px 0;
+      background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(26,110,245,.12));
+      border:1px solid rgba(124,58,237,.25);border-radius:14px;
+      padding:12px 14px;display:none;align-items:center;gap:10px;
+      animation:slideIn .4s ease;
+    }
+    #install-banner.show { display:flex; }
+    .install-banner-icon { font-size:20px; }
+    .install-banner-text { flex:1;font-size:11px;color:var(--text2);line-height:1.3; }
+    .install-banner-text strong { color:var(--text1);display:block;margin-bottom:2px; }
+    .install-banner-btn {
+      padding:6px 12px;border-radius:20px;border:none;cursor:pointer;
+      font-size:11px;font-weight:700;
+      background:linear-gradient(135deg,#7c3aed,#1a6ef5);color:#fff;
+      flex-shrink:0;
+    }
+
+    /* Temu-Style Notification Popup */
+    .temu-notification {
+      position: fixed;
+      top: -140px; /* Hidden by default */
+      left: 16px;
+      right: 16px;
+      background: linear-gradient(135deg, rgba(20, 20, 35, 0.97), rgba(10, 10, 20, 0.99));
+      border: 1.5px solid rgba(99, 179, 237, 0.35); /* Default blue glow */
+      border-radius: 20px;
+      padding: 16px 16px 19px;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      transition: top 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+      opacity: 0;
+      overflow: hidden;
+    }
+    .temu-notification.show {
+      top: 16px; /* Slide down from top */
+      opacity: 1;
+    }
+    .temu-notification.reward {
+      border-color: rgba(104, 211, 145, 0.65); /* Green glow for rewards */
+      box-shadow: 0 16px 40px rgba(104, 211, 145, 0.25), 0 6px 16px rgba(0, 0, 0, 0.6);
+    }
+    .temu-notif-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #1a6ef5, #0d47a1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 10px rgba(26, 110, 245, 0.4);
+    }
+    .temu-notification.reward .temu-notif-avatar {
+      background: linear-gradient(135deg, #68d391, #38a169);
+      box-shadow: 0 4px 10px rgba(104, 211, 145, 0.4);
+    }
+    .temu-notif-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .temu-notif-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 3px;
+      letter-spacing: -0.3px;
+    }
+    .temu-notif-body {
+      font-size: 11px;
+      color: #a0aec0;
+      line-height: 1.4;
+    }
+    .temu-notif-close {
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.4);
+      font-size: 22px;
+      cursor: pointer;
+      padding: 0 4px;
+      transition: color 0.2s;
+    }
+    .temu-notif-close:hover {
+      color: #fff;
+    }
+    /* Progress bar */
+    .temu-notif-progress {
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 3px;
+      border-radius: 0 0 20px 20px;
+      background: rgba(99,179,237,0.65);
+      width: 100%;
+      transform-origin: left;
+      transition: transform linear;
+    }
+    .temu-notification.reward .temu-notif-progress {
+      background: rgba(104,211,145,0.8);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Temu-style Notification Banner -->
+<div id="temu-notification" class="temu-notification">
+  <div class="temu-notif-avatar" id="temu-notif-avatar">🦷</div>
+  <div class="temu-notif-content">
+    <div class="temu-notif-title" id="temu-notif-title">Título</div>
+    <div class="temu-notif-body" id="temu-notif-body">Cuerpo de la notificación...</div>
+  </div>
+  <button class="temu-notif-close" onclick="closeTemuNotification()">&times;</button>
+  <div class="temu-notif-progress" id="temu-notif-progress"></div>
+</div>
+
+<!-- Loader -->
+<div id="loader">
+  <div class="loader-logo">🩺</div>
+  <div class="loader-text">Cargando tu plan…</div>
+</div>
+
+<!-- No plan state -->
+<div id="no-plan">
+  <div class="no-plan-icon">📋</div>
+  <div class="no-plan-title">Sin plan para hoy</div>
+  <div class="no-plan-sub">Tu médico aún no ha prescrito un plan de tratamiento. Vuelve más tarde.</div>
+</div>
+
+<!-- Main app -->
+<div id="app">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <div class="header-brand">
+        <span class="header-brand-icon">🩺</span>
+        <span class="header-brand-name">DentaFlow</span>
+      </div>
+      <div id="doctor-badge" class="doctor-badge">Doctor</div>
+    </div>
+    <div class="compliance-bar-wrap">
+      <svg class="compliance-ring-svg" width="52" height="52" viewBox="0 0 36 36">
+        <circle class="compliance-ring-track" cx="18" cy="18" r="15.9"/>
+        <circle class="compliance-ring-fill" id="ring-fill" cx="18" cy="18" r="15.9"/>
+        <text class="compliance-ring-text" id="ring-pct" x="18" y="18">0%</text>
+      </svg>
+      <div class="compliance-info">
+        <div class="compliance-label" id="compliance-label">Comienza tu plan</div>
+        <div class="compliance-sub" id="compliance-sub">Marca cada ítem al completarlo</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Patient name -->
+  <div class="patient-banner">
+    <div class="patient-greeting">Tu plan de hoy</div>
+    <div class="patient-name" id="patient-name">—</div>
+  </div>
+
+  <!-- Install PWA banner -->
+  <div id="install-banner">
+    <span class="install-banner-icon">📲</span>
+    <div class="install-banner-text">
+      <strong>Instala la app en tu teléfono</strong>
+      Accede rápido sin abrir el navegador
+    </div>
+    <button class="install-banner-btn" onclick="openPwaModal()">Instalar</button>
+  </div>
+
+  <!-- Action buttons bar -->
+  <div class="action-buttons-bar">
+    <button class="action-btn primary" id="patient-qr-btn" onclick="openRxQRModal()" style="display:none">
+      🔳 Ver Receta QR
+    </button>
+    <button class="action-btn green" onclick="openPwaModal()">
+      📲 Instalar App
+    </button>
+    <button class="action-btn amber" onclick="downloadPlanText()">
+      ⬇️ Descargar Plan
+    </button>
+  </div>
+
+  <!-- Plan updated notification -->
+  <div id="plan-updated-banner">
+    <div class="pub-icon">🔔</div>
+    <div class="pub-text">
+      <div class="pub-title">Tu médico actualizó tu plan</div>
+      <div class="pub-sub">Hay cambios nuevos disponibles</div>
+    </div>
+    <button class="pub-reload" onclick="reloadPlan()">Actualizar</button>
+  </div>
+
+  <!-- Completed banner -->
+  <div class="completed-banner" id="completed-banner">
+    <div class="completed-banner-icon">🎉</div>
+    <div class="completed-banner-title">¡Plan completado al 100%!</div>
+    <div class="completed-banner-sub">Excelente trabajo. Tu médico puede ver tu progreso en tiempo real.</div>
+  </div>
+
+  <!-- Meds section -->
+  <div class="section-wrap" id="meds-section">
+    <div class="section-title-row">
+      <span class="section-icon">💊</span>
+      <span class="section-label">Medicación / Fármacos</span>
+      <span class="section-badge" id="meds-badge">0/0</span>
+    </div>
+    <div id="meds-list"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Diet section -->
+  <div class="section-wrap" id="diet-section">
+    <div class="section-title-row">
+      <span class="section-icon">🍽️</span>
+      <span class="section-label">Alimentación</span>
+      <span class="section-badge" id="diet-badge">0/0</span>
+    </div>
+    <div id="diet-list"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Routine section -->
+  <div class="section-wrap" id="routine-section">
+    <div class="section-title-row">
+      <span class="section-icon">💪</span>
+      <span class="section-label">Rutina Deportiva</span>
+      <span class="section-badge" id="routine-badge">0/0</span>
+    </div>
+    <div id="routine-list"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  MODAL QR RECETA DIGITAL                  -->
+<!-- ══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-rx-qr" onclick="e => { if(e.target===this) closeRxQRModal(); }">
+  <div class="modal-box">
+    <div class="modal-title">📋 Receta Digital Verificada</div>
+    <div class="modal-sub">Muestra este QR en la farmacia o clínica para verificar tu tratamiento prescrito</div>
+    <div class="qr-frame">
+      <img id="rx-qr-img" src="" alt="QR Code">
+    </div>
+    <div class="qr-verified-tag">🛡️ Firmado por DentaFlow</div>
+    <div class="modal-btn-row">
+      <button class="modal-btn secondary" onclick="closeRxQRModal()">Cerrar</button>
+      <button class="modal-btn primary-blue" onclick="downloadRxQR()">⬇️ Guardar QR</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  MODAL INSTALACIÓN PWA                    -->
+<!-- ══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-pwa" onclick="e => { if(e.target===this) closePwaModal(); }">
+  <div class="modal-box">
+    <div class="install-arrow">⬇️</div>
+    <div class="modal-title">Instala DentaFlow en tu teléfono</div>
+    <div class="modal-sub">Escanea el código QR con tu teléfono y sigue los pasos para instalar la app en tu pantalla de inicio</div>
+
+    <!-- QR que lleva directo al portal del paciente -->
+    <img id="pwa-qr-img" src="" alt="QR de instalación">
+
+    <!-- Pasos según dispositivo -->
+    <div class="pwa-steps">
+      <div class="pwa-step">
+        <span class="pwa-step-num">1</span>
+        <div class="pwa-step-text"><strong>Abre la cámara de tu teléfono</strong> y enfoca el código QR de arriba</div>
+      </div>
+      <div class="pwa-step">
+        <span class="pwa-step-num">2</span>
+        <div class="pwa-step-text">
+          <strong>iPhone (Safari):</strong> Toca el botón compartir <em>↑</em> → "Añadir a pantalla de inicio"<br>
+          <strong>Android (Chrome):</strong> Toca el menú ⋮ → "Añadir a pantalla de inicio"
+        </div>
+      </div>
+      <div class="pwa-step">
+        <span class="pwa-step-num">3</span>
+        <div class="pwa-step-text"><strong>¡Listo!</strong> El ícono de DentaFlow aparecerá en tu pantalla de inicio</div>
+      </div>
+    </div>
+
+    <div class="modal-btn-row">
+      <button class="modal-btn secondary" onclick="closePwaModal()">Cerrar</button>
+      <button class="modal-btn primary-blue" onclick="copyPatientUrl()">🔗 Copiar enlace</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Chat FAB -->
+<button id="chat-fab" onclick="toggleChat()">
+  💬
+  <div class="fab-badge" id="fab-badge">0</div>
+</button>
+
+<!-- Chat Panel -->
+<div id="chat-panel">
+  <div class="chat-panel-header">
+    <div class="chat-panel-avatar">👨‍⚕️</div>
+    <div>
+      <div class="chat-panel-title">Chat con tu Médico</div>
+      <div class="chat-panel-sub" id="chat-doctor-status">Verificando estado…</div>
+    </div>
+    <button class="chat-panel-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chat-messages">
+    <div class="chat-empty" id="chat-empty">
+      <div class="chat-empty-icon">💬</div>
+      <div>Aún no hay mensajes</div>
+      <div style="font-size:11px;color:var(--text3)">Escribe a tu médico si tienes dudas</div>
+    </div>
+    <div class="typing-indicator" id="typing-indicator">
+      <div class="typing-dots"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+  <div class="chat-input-wrap">
+    <textarea class="chat-textarea" id="chat-input" placeholder="Escribe un mensaje…" rows="1"
+      onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+    <button class="chat-send" id="chat-send-btn" onclick="sendChatMessage()">➤</button>
+  </div>
+</div>
+
+<script>
+  const patientId = location.pathname.split('/')[2];
+  let planData = null;
+  let compliance = { dieta: {}, rutina: {}, medicamentos: {} };
+  const today = new Date().toISOString().split('T')[0];
+  let unreadCount = 0;
+  let chatOpen = false;
+  let socket = null;
+  let deferredInstallPrompt = null;
+
+  // ── SERVICE WORKER ─────────────────────────────────────
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
+
+  // ── PWA INSTALL PROMPT ─────────────────────────────────
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    document.getElementById('install-banner').classList.add('show');
+  });
+
+  // ── SOCKET.IO ─────────────────────────────────────────
+  function initSocket() {
+    socket = io(window.BACKEND_URL || undefined, { auth: { role: 'patient', patientId } });
+
+    socket.on('connect', () => {
+      console.log('🔌 Conectado al servidor en tiempo real');
+    });
+
+    socket.on('connect_error', (err) => {
+      console.warn('Socket error:', err.message);
+    });
+
+    // Doctor actualiza el plan → notificación
+    socket.on('prescriptionUpdated', ({ patientId: pid }) => {
+      if (pid !== patientId) return;
+      document.getElementById('plan-updated-banner').classList.add('show');
+      showTemuNotification('⚡ Plan Médico Actualizado', 'Tu médico acaba de modificar tu tratamiento en tiempo real. Pulsa "Actualizar" arriba para cargar los cambios.', 'info', '👨‍⚕️');
+    });
+
+    // Mensaje recibido
+    socket.on('chatMessage', (msg) => {
+      appendChatMessage(msg);
+      if (!chatOpen && msg.from === 'doctor') {
+        unreadCount++;
+        updateFabBadge();
+        showTemuNotification('💬 Nuevo mensaje del Doctor', `"${msg.text.slice(0, 60)}${msg.text.length > 60 ? '...' : ''}"`, 'info', '👨‍⚕️');
+      }
+    });
+
+    // Historial de chat al conectar
+    socket.on('chatHistory', (history) => {
+      const container = document.getElementById('chat-messages');
+      history.forEach(msg => appendChatMessage(msg, true));
+      if (history.length > 0) {
+        document.getElementById('chat-empty').style.display = 'none';
+        scrollChatToBottom();
+      }
+    });
+  }
+
+  // ── PLAN LOADING ──────────────────────────────────────
+  async function loadPlan() {
+    try {
+      const res = await fetch(`/api/patient-plan/${patientId}`);
+      const data = await res.json();
+      const plan = data.prescripcionActiva;
+      if (!plan || (!plan.dieta?.length && !plan.rutina?.length && !plan.medicamentos?.length)) {
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('no-plan').classList.add('show');
+        initSocket();
+        return;
+      }
+      planData = data;
+      compliance = data.cumplimientoHoy || { dieta: {}, rutina: {}, medicamentos: {} };
+      document.getElementById('patient-name').textContent = data.nombre || 'Paciente';
+      
+      // Show QR button if plan has QR code
+      if (plan && plan.qrCode) {
+        document.getElementById('patient-qr-btn').style.display = 'inline-flex';
+      }
+
+      renderPlan();
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      updateRing();
+      initSocket();
+      initNotifications();
+      loadPwaQr();
+    } catch (e) {
+      document.getElementById('loader').querySelector('.loader-text').textContent = 'Error al cargar el plan.';
+    }
+  }
+
+  async function reloadPlan() {
+    document.getElementById('plan-updated-banner').classList.remove('show');
+    document.getElementById('app').style.opacity = '0.5';
+    try {
+      const res = await fetch(`/api/patient-plan/${patientId}`);
+      const data = await res.json();
+      planData = data;
+      compliance = data.cumplimientoHoy || { dieta: {}, rutina: {}, medicamentos: {} };
+      
+      const qrBtn = document.getElementById('patient-qr-btn');
+      if (data.prescripcionActiva && data.prescripcionActiva.qrCode) {
+        qrBtn.style.display = 'inline-flex';
+      } else {
+        qrBtn.style.display = 'none';
+      }
+
+      renderPlan();
+      updateRing();
+      showToast('✅ Plan actualizado');
+    } catch(e) {}
+    document.getElementById('app').style.opacity = '1';
+  }
+
+  function renderPlan() {
+    const plan = planData.prescripcionActiva;
+    renderSection('diet-list', plan.dieta || [], 'dieta', 'diet-badge');
+    renderSection('routine-list', plan.rutina || [], 'rutina', 'routine-badge');
+    renderSection('meds-list', plan.medicamentos || [], 'medicamentos', 'meds-badge');
+  }
+
+  function renderSection(containerId, items, type, badgeId) {
+    const container = document.getElementById(containerId);
+    const badgeEl = document.getElementById(badgeId);
+    if (!items.length) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">${type==='dieta'?'🥗':type==='rutina'?'🏋️':'💊'}</div><div class="empty-state-text">Sin ${type==='dieta'?'alimentación':type==='rutina'?'rutina':'medicamentos'} prescritos hoy</div></div>`;
+      if (badgeEl) badgeEl.textContent = '—';
+      return;
+    }
+    const complianceMap = compliance[type] || {};
+    container.innerHTML = items.map((item, i) => {
+      const checked = !!complianceMap[String(i)];
+      const title = type === 'dieta' ? item.nombre : type === 'rutina' ? item.ejercicio : item.nombre;
+      let sub = '';
+      if (type === 'dieta') {
+        sub = item.alimentos;
+      } else if (type === 'rutina') {
+        sub = `${item.series||'—'} series × ${item.reps||'—'} reps${item.frecuencia?' · '+item.frecuencia:''}`;
+      } else {
+        sub = `${item.dosis||''} · ${item.frecuencia||''}${item.duracion?' · '+item.duracion:''}${item.notas?' ('+item.notas+')':''}`;
+      }
+      
+      let tagText = '🍽️ Comida';
+      let tagClass = '';
+      if (type === 'rutina') {
+        tagText = '🏃 Ejercicio';
+        tagClass = ' rutina';
+      } else if (type === 'medicamentos') {
+        tagText = '💊 Med';
+        tagClass = ' meds';
+      }
+
+      return `
+        <div class="plan-card${checked?' checked':''}" id="card-${type}-${i}" onclick="toggleItem('${type}',${i},this)">
+          <div class="plan-card-inner">
+            <div class="check-circle">
+              <svg viewBox="0 0 12 9" fill="none"><path d="M1.5 4.5L4.5 7.5L10.5 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="plan-card-body">
+              <div class="plan-card-title">${escHtml(title)}</div>
+              ${sub?`<div class="plan-card-sub">${escHtml(sub)}</div>`:''}
+            </div>
+            <span class="plan-card-tag${tagClass}">${tagText}</span>
+          </div>
+        </div>`;
+    }).join('');
+    updateBadge(type, badgeId, items.length);
+  }
+
+  async function toggleItem(type, index, cardEl) {
+    if (!compliance[type]) compliance[type] = {};
+    const newState = !compliance[type][String(index)];
+    compliance[type][String(index)] = newState;
+    cardEl.classList.toggle('checked', newState);
+    
+    let badgeId = 'diet-badge';
+    let listKey = 'dieta';
+    if (type === 'rutina') {
+      badgeId = 'routine-badge';
+      listKey = 'rutina';
+    } else if (type === 'medicamentos') {
+      badgeId = 'meds-badge';
+      listKey = 'medicamentos';
+    }
+
+    updateBadge(type, badgeId, (planData.prescripcionActiva[listKey]||[]).length);
+    updateRing();
+    if (newState) {
+      if (type === 'medicamentos') {
+        showTemuNotification('💊 Medicamento Tomado', '¡Buen trabajo! Has tomado tu medicamento a tiempo. Sigue cuidándote.', 'reward', '💊');
+      } else if (type === 'dieta') {
+        showTemuNotification('🥗 Alimentación Registrada', '¡Excelente! Cumpliste con tu alimentación del plan. ¡Gran constancia!', 'reward', '🥗');
+      } else if (type === 'rutina') {
+        showTemuNotification('🏋️ Ejercicio Completado', '¡Sensacional! Completar tu ejercicio acelera tu recuperación. ¡Sigue así!', 'reward', '💪');
+      }
+    } else {
+      showToast('Ítem desmarcado');
+    }
+    try {
+      await fetch(`/api/patients/${patientId}/compliance`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ date:today, type, itemIndex:index, completed:newState })
+      });
+    } catch(e) {}
+  }
+
+  function updateBadge(type, badgeId, total) {
+    const compMap = compliance[type] || {};
+    const done = Object.values(compMap).filter(Boolean).length;
+    const badge = document.getElementById(badgeId);
+    if (badge) {
+      badge.textContent = `${done}/${total}`;
+      badge.className = `section-badge${done===total&&total>0?' done':''}`;
+    }
+  }
+
+  function updateRing() {
+    const plan = planData?.prescripcionActiva;
+    if (!plan) return;
+    const totalDieta = (plan.dieta||[]).length;
+    const totalRutina = (plan.rutina||[]).length;
+    const totalMeds = (plan.medicamentos||[]).length;
+    const total = totalDieta + totalRutina + totalMeds;
+    const done = Object.values(compliance.dieta||{}).filter(Boolean).length +
+                 Object.values(compliance.rutina||{}).filter(Boolean).length +
+                 Object.values(compliance.medicamentos||{}).filter(Boolean).length;
+    const pct = total>0 ? Math.round((done/total)*100) : 0;
+    const circumference = 2*Math.PI*15.9;
+    const offset = circumference - (pct/100)*circumference;
+    const ring = document.getElementById('ring-fill');
+    ring.style.strokeDasharray = `${circumference} ${circumference}`;
+    ring.style.strokeDashoffset = offset;
+    const pctEl = document.getElementById('ring-pct');
+    if (pct === 100) {
+      ring.style.stroke = 'var(--green)'; pctEl.style.fill = 'var(--green)';
+      document.getElementById('compliance-label').textContent = '¡Plan completado! 🎉';
+      document.getElementById('compliance-sub').textContent = 'Tu médico ya puede ver tu avance';
+      document.getElementById('completed-banner').classList.add('show');
+      if (prevPct < 100) {
+        showTemuNotification('🏆 ¡100% Completado!', '¡Espectacular! Has cumplido todo tu plan de hoy. ¡Eres un paciente ejemplar! 🎉', 'reward', '🏆');
+      }
+    } else if (pct > 0) {
+      ring.style.stroke = pct>=60?'var(--amber)':'var(--blue)';
+      pctEl.style.fill = pct>=60?'var(--amber)':'var(--blue)';
+      document.getElementById('compliance-label').textContent = `${done} de ${total} completados`;
+      document.getElementById('compliance-sub').textContent = '¡Vas muy bien, sigue así!';
+      document.getElementById('completed-banner').classList.remove('show');
+    } else {
+      ring.style.stroke = 'var(--blue)'; pctEl.style.fill = 'var(--blue)';
+      document.getElementById('compliance-label').textContent = 'Comienza tu plan';
+      document.getElementById('compliance-sub').textContent = 'Marca cada ítem al completarlo';
+      document.getElementById('completed-banner').classList.remove('show');
+    }
+    pctEl.textContent = pct + '%';
+    prevPct = pct;
+  }
+
+  // ── RX QR CODE MODAL ──────────────────────────────────
+  function openRxQRModal() {
+    const plan = planData?.prescripcionActiva;
+    if (!plan || !plan.qrCode) return;
+    document.getElementById('rx-qr-img').src = plan.qrCode;
+    document.getElementById('modal-rx-qr').classList.add('open');
+  }
+
+  function closeRxQRModal() {
+    document.getElementById('modal-rx-qr').classList.remove('open');
+  }
+
+  function downloadRxQR() {
+    const plan = planData?.prescripcionActiva;
+    if (!plan || !plan.qrCode) return;
+    const a = document.createElement('a');
+    a.href = plan.qrCode;
+    a.download = `receta-dentaflow-${planData.nombre || 'paciente'}.png`;
+    a.click();
+    showToast('⬇️ QR descargado');
+  }
+
+  // ── PWA INSTALL MODAL ─────────────────────────────────
+  async function loadPwaQr() {
+    try {
+      const patientUrl = `${window.location.origin}/patient/${patientId}/today`;
+      const res = await fetch(`/api/utils/qr?text=${encodeURIComponent(patientUrl)}`);
+      const data = await res.json();
+      if (data.qr) {
+        document.getElementById('pwa-qr-img').src = data.qr;
+      }
+    } catch(e) {}
+  }
+
+  function openPwaModal() {
+    document.getElementById('modal-pwa').classList.add('open');
+  }
+
+  function closePwaModal() {
+    document.getElementById('modal-pwa').classList.remove('open');
+  }
+
+  async function copyPatientUrl() {
+    const url = `${window.location.origin}/patient/${patientId}/today`;
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('🔗 ¡Enlace copiado!');
+    } catch(e) {
+      showToast('Copia este enlace: ' + url);
+    }
+  }
+
+  // ── DESCARGAR PLAN EN TEXTO ────────────────────────────
+  function downloadPlanText() {
+    const plan = planData?.prescripcionActiva;
+    if (!plan) { showToast('No hay plan disponible'); return; }
+    
+    const nombre = planData.nombre || 'Paciente';
+    const fecha = new Date().toLocaleDateString('es-DO', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    
+    let txt = `╔══════════════════════════════════════╗\n`;
+    txt += `║        PLAN MÉDICO - DENTAFLOW       ║\n`;
+    txt += `╚══════════════════════════════════════╝\n\n`;
+    txt += `Paciente: ${nombre}\n`;
+    txt += `Fecha: ${fecha}\n`;
+    txt += `──────────────────────────────────────\n\n`;
+
+    if (plan.medicamentos && plan.medicamentos.length) {
+      txt += `💊 MEDICACIÓN\n`;
+      txt += `──────────────────────────────────────\n`;
+      plan.medicamentos.forEach((m, i) => {
+        txt += `${i+1}. ${m.nombre || ''}${m.dosis ? ' ('+m.dosis+')' : ''}\n`;
+        if (m.frecuencia) txt += `   Frecuencia: ${m.frecuencia}\n`;
+        if (m.duracion) txt += `   Duración: ${m.duracion}\n`;
+        if (m.notas) txt += `   Instrucciones: ${m.notas}\n`;
+      });
+      txt += `\n`;
+    }
+
+    if (plan.dieta && plan.dieta.length) {
+      txt += `🍽️ PLAN NUTRICIONAL\n`;
+      txt += `──────────────────────────────────────\n`;
+      plan.dieta.forEach((d, i) => {
+        txt += `${i+1}. ${d.nombre || ''}\n`;
+        if (d.alimentos) txt += `   ${d.alimentos}\n`;
+      });
+      txt += `\n`;
+    }
+
+    if (plan.rutina && plan.rutina.length) {
+      txt += `💪 RUTINA DE EJERCICIO\n`;
+      txt += `──────────────────────────────────────\n`;
+      plan.rutina.forEach((r, i) => {
+        txt += `${i+1}. ${r.ejercicio || ''}\n`;
+        if (r.series && r.reps) txt += `   ${r.series} series × ${r.reps} repeticiones\n`;
+        if (r.frecuencia) txt += `   Frecuencia: ${r.frecuencia}\n`;
+      });
+      txt += `\n`;
+    }
+
+    txt += `──────────────────────────────────────\n`;
+    txt += `© 2026 DentaFlow - Motor de Prescripción Digital\n`;
+    txt += `Verifica tu receta en: ${window.location.origin}/verify/${plan.uuid || ''}\n`;
+
+    const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `plan-dentaflow-${nombre.replace(/\s+/g,'-')}-${today}.txt`;
+    a.click();
+    showToast('⬇️ Plan descargado');
+  }
+
+  // ── WEB NOTIFICATIONS API ─────────────────────────────
+  function initNotifications() {
+    if (!("Notification" in window)) return;
+    if (Notification.permission === "granted") {
+      scheduleLocalReminders();
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+          scheduleLocalReminders();
+        }
+      });
+    }
+  }
+
+  function scheduleLocalReminders() {
+    const plan = planData?.prescripcionActiva;
+    if (!plan || !plan.medicamentos || !plan.medicamentos.length) return;
+    
+    try {
+      new Notification("🩺 DentaFlow", {
+        body: `Recordatorios activos para tus ${plan.medicamentos.length} medicamentos de hoy.`,
+        icon: "https://cdn-icons-png.flaticon.com/512/3022/3022579.png"
+      });
+    } catch (e) {
+      console.warn("Could not fire welcome notification:", e.message);
+    }
+  }
+
+  // ── CHAT ─────────────────────────────────────────────
+  function toggleChat() {
+    chatOpen = !chatOpen;
+    document.getElementById('chat-panel').classList.toggle('open', chatOpen);
+    if (chatOpen) {
+      unreadCount = 0;
+      updateFabBadge();
+      scrollChatToBottom();
+      document.getElementById('chat-input').focus();
+    }
+  }
+
+  function updateFabBadge() {
+    const badge = document.getElementById('fab-badge');
+    badge.textContent = unreadCount;
+    badge.classList.toggle('show', unreadCount > 0);
+  }
+
+  function sendChatMessage() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text || !socket) return;
+    socket.emit('patientMessage', { text });
+    input.value = '';
+    input.style.height = '';
+    document.getElementById('chat-send-btn').disabled = false;
+  }
+
+  function handleChatKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendChatMessage();
+    }
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }
+
+  function appendChatMessage(msg, historical = false) {
+    const container = document.getElementById('chat-messages');
+    document.getElementById('chat-empty').style.display = 'none';
+
+    const div = document.createElement('div');
+    div.className = `chat-msg from-${msg.from}`;
+    const time = new Date(msg.ts).toLocaleTimeString('es-DO', { hour:'2-digit', minute:'2-digit' });
+    div.innerHTML = `
+      <div class="chat-msg-sender">${msg.from === 'doctor' ? '👨‍⚕️ Médico' : '🙋 Tú'}</div>
+      ${escHtml(msg.text)}
+      <div class="chat-msg-time">${time}</div>`;
+
+    const typing = document.getElementById('typing-indicator');
+    container.insertBefore(div, typing);
+    if (!historical) scrollChatToBottom();
+  }
+
+  function scrollChatToBottom() {
+    const el = document.getElementById('chat-messages');
+    el.scrollTop = el.scrollHeight;
+  }
+
+  // Doctor online status
+  function setDoctorOnline(online) {
+    const badge = document.getElementById('doctor-badge');
+    const statusEl = document.getElementById('chat-doctor-status');
+    if (online) {
+      badge.textContent = 'Médico en línea';
+      badge.className = 'doctor-badge online';
+      statusEl.textContent = '🟢 En línea — responde rápido';
+    } else {
+      badge.textContent = 'Médico';
+      badge.className = 'doctor-badge';
+      statusEl.textContent = '⚫ Fuera de línea — verá tu mensaje luego';
+    }
+  }
+
+  setDoctorOnline(false);
+
+  // Click outside modal to close
+  document.getElementById('modal-rx-qr').addEventListener('click', function(e) {
+    if (e.target === this) closeRxQRModal();
+  });
+  document.getElementById('modal-pwa').addEventListener('click', function(e) {
+    if (e.target === this) closePwaModal();
+  });
+
+  // ── UTILS ─────────────────────────────────────────────
+  let toastTimeout;
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => el.classList.remove('show'), 2500);
+  }
+
+  function escHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── TEMU-STYLE NOTIFICATIONS ──────────────────────────
+  let prevPct = 0;
+  let temuTimeout = null;
+  function showTemuNotification(title, body, type = 'info', avatar = '🦷') {
+    const notif = document.getElementById('temu-notification');
+    const titleEl = document.getElementById('temu-notif-title');
+    const bodyEl = document.getElementById('temu-notif-body');
+    const avatarEl = document.getElementById('temu-notif-avatar');
+    const progEl = document.getElementById('temu-notif-progress');
+    
+    if (!notif || !titleEl || !bodyEl || !avatarEl) return;
+    
+    titleEl.textContent = title;
+    bodyEl.innerHTML = body;
+    avatarEl.textContent = avatar;
+    
+    notif.classList.remove('reward', 'info');
+    if (type === 'reward') {
+      notif.classList.add('reward');
+    } else {
+      notif.classList.add('info');
+    }
+
+    // Animate progress bar
+    if (progEl) {
+      progEl.style.transition = 'none';
+      progEl.style.transform = 'scaleX(1)';
+      void notif.offsetWidth; // force reflow
+      progEl.style.transition = 'transform 4500ms linear';
+      progEl.style.transform = 'scaleX(0)';
+    }
+    
+    notif.classList.add('show');
+    
+    clearTimeout(temuTimeout);
+    temuTimeout = setTimeout(() => {
+      closeTemuNotification();
+    }, 4500);
+  }
+  
+  function closeTemuNotification() {
+    const notif = document.getElementById('temu-notification');
+    if (notif) notif.classList.remove('show');
+  }
+
+  // ── INIT ──────────────────────────────────────────────
+  loadPlan();
+</script>
+</body>
+</html>

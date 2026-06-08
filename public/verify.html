@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificación de Receta Digital — DentaFlow</title>
+  <meta name="description" content="Validación oficial en tiempo real de prescripciones y tratamientos emitidos por DentaFlow.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #08080d;
+      --bg2: #10101a;
+      --card-bg: #12121e;
+      --accent: #4f8ef7;
+      --accent2: #7c3aed;
+      --green: #10b981;
+      --green-glow: rgba(16,185,129,0.15);
+      --text1: #f3f4f6;
+      --text2: #9ca3af;
+      --text3: #555d78;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.04);
+    }
+
+    html, body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text1);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 32px 16px 60px;
+      position: relative;
+    }
+
+    /* ─── BACKGROUND ─── */
+    .bg-radial {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 50% 35% at 15% 10%, rgba(79,142,247,0.10) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 85% 85%, rgba(16,185,129,0.08) 0%, transparent 60%);
+    }
+
+    /* ─── SPINNER ─── */
+    #loading-spinner {
+      position: relative; z-index: 10;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 60vh; gap: 16px;
+    }
+    .spinner-ring {
+      width: 48px; height: 48px;
+      border: 3px solid rgba(255,255,255,0.08);
+      border-radius: 50%; border-top-color: var(--accent);
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner-text { font-size: 13px; color: var(--text3); font-weight: 500; }
+
+    /* ─── VERIFY CARD ─── */
+    .verify-card {
+      position: relative; z-index: 10;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      width: 100%; max-width: 520px;
+      padding: 0;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+      overflow: hidden;
+      display: none;
+      animation: cardIn .5s cubic-bezier(.16,1,.3,1) both;
+    }
+    @keyframes cardIn {
+      from { opacity:0; transform:translateY(20px) scale(0.97); }
+      to { opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    /* Top accent bar */
+    .card-accent-bar {
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+    }
+
+    .card-inner { padding: 28px 24px; }
+
+    /* ─── HEADER ─── */
+    .brand-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .brand-name {
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'Outfit', sans-serif; font-weight: 800;
+      font-size: 20px; color: var(--text1);
+    }
+    .brand-name span {
+      background: linear-gradient(135deg, var(--accent), var(--green));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .verified-shield {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--green-glow);
+      border: 1px solid rgba(16,185,129,0.3);
+      color: var(--green); font-size: 11px; font-weight: 700;
+      padding: 6px 12px; border-radius: 20px;
+    }
+    .shield-pulse {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px rgba(16,185,129,0.6);
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.7)}
+    }
+
+    /* ─── PATIENT INFO ─── */
+    .patient-info {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border2);
+      border-radius: 16px; padding: 18px 20px;
+      margin-bottom: 24px;
+    }
+    .patient-info-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .8px; color: var(--text3); margin-bottom: 10px;
+    }
+    .patient-name-big {
+      font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 800;
+      color: var(--text1); margin-bottom: 6px; letter-spacing: -.5px;
+    }
+    .patient-meta {
+      display: flex; gap: 16px; flex-wrap: wrap;
+    }
+    .meta-chip {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; color: var(--text2); font-weight: 500;
+    }
+    .meta-chip-dot {
+      width: 4px; height: 4px; border-radius: 50%;
+      background: var(--text3);
+    }
+
+    /* ─── SECTION ─── */
+    .rx-section { margin-bottom: 22px; }
+    .rx-section-header {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 12px; padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .rx-section-icon { font-size: 18px; }
+    .rx-section-title {
+      font-size: 12px; font-weight: 800;
+      color: var(--accent); text-transform: uppercase;
+      letter-spacing: .5px; flex: 1;
+    }
+    .rx-section-count {
+      font-size: 10px; font-weight: 700;
+      background: rgba(79,142,247,0.12);
+      color: var(--accent); padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    .rx-list { display: flex; flex-direction: column; gap: 8px; }
+    .rx-item {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px 14px;
+      transition: border-color .2s;
+    }
+    .rx-item:hover { border-color: rgba(79,142,247,0.2); }
+    .rx-item-name {
+      font-size: 13px; font-weight: 700; color: var(--text1); margin-bottom: 4px;
+    }
+    .rx-item-details {
+      font-size: 11px; color: var(--text2); line-height: 1.5;
+    }
+    .rx-item-details strong { color: var(--text1); font-weight: 600; }
+    .rx-empty {
+      font-size: 12px; color: var(--text3);
+      font-style: italic; padding: 8px 0;
+    }
+
+    /* ─── ACTIONS ─── */
+    .card-actions {
+      padding: 18px 24px 24px;
+      border-top: 1px solid var(--border);
+      display: flex; gap: 10px; flex-wrap: wrap;
+    }
+    .action-btn {
+      flex: 1; min-width: 120px; height: 44px;
+      border-radius: 12px; font-size: 12px; font-weight: 700;
+      cursor: pointer; border: none;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: all .2s;
+    }
+    .action-btn.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(79,142,247,0.3);
+    }
+    .action-btn.primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(79,142,247,0.4); }
+    .action-btn.secondary {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      color: var(--text2);
+    }
+    .action-btn.secondary:hover { background: rgba(255,255,255,0.1); color: var(--text1); }
+    .action-btn.green-btn {
+      background: rgba(16,185,129,0.12);
+      border: 1px solid rgba(16,185,129,0.25);
+      color: var(--green);
+    }
+
+    /* ─── FOOTER VERIFY ─── */
+    .verify-footer {
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      padding: 14px 24px;
+      font-size: 10px; color: var(--text3);
+      text-align: center; line-height: 1.6;
+    }
+    .verify-footer code {
+      font-family: monospace; font-size: 9px;
+      background: rgba(255,255,255,0.05);
+      padding: 2px 6px; border-radius: 4px;
+      color: var(--text2);
+    }
+
+    /* ─── ERROR CARD ─── */
+    .error-card {
+      position: relative; z-index: 10;
+      text-align: center; max-width: 380px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 24px; padding: 48px 28px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+      display: none;
+      animation: cardIn .4s cubic-bezier(.16,1,.3,1) both;
+    }
+    .error-icon { font-size: 54px; margin-bottom: 16px; }
+    .error-title { font-family:'Outfit',sans-serif; font-size: 22px; font-weight: 800; color: var(--text1); margin-bottom: 10px; }
+    .error-sub { font-size: 13px; color: var(--text2); line-height: 1.6; max-width: 280px; margin: 0 auto; }
+
+    /* ─── PAGE FOOTER ─── */
+    .page-footer {
+      position: relative; z-index: 10;
+      margin-top: 24px; text-align: center;
+      font-size: 11px; color: var(--text3);
+    }
+
+    /* ─── TOAST ─── */
+    #toast {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: var(--bg2); border: 1px solid var(--border);
+      padding: 10px 20px; border-radius: 24px;
+      font-size: 12px; font-weight: 600; color: var(--text1);
+      white-space: nowrap; z-index: 999;
+      transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .3s;
+      opacity: 0; box-shadow: 0 8px 32px rgba(0,0,0,.5);
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    @media (min-width: 640px) {
+      body { padding: 48px 24px 80px; }
+      .card-inner { padding: 32px 32px 20px; }
+      .card-actions { padding: 20px 32px 28px; }
+      .verify-footer { padding: 16px 32px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-radial"></div>
+
+  <!-- Loading State -->
+  <div id="loading-spinner">
+    <div class="spinner-ring"></div>
+    <div class="spinner-text">Validando firma digital de receta…</div>
+  </div>
+
+  <!-- Verification Card (Success) -->
+  <div class="verify-card" id="verify-card">
+    <div class="card-accent-bar"></div>
+    <div class="card-inner">
+
+      <!-- Brand row -->
+      <div class="brand-row">
+        <div class="brand-name">
+          🩺 Denta<span>Flow</span>
+        </div>
+        <div class="verified-shield">
+          <span class="shield-pulse"></span>
+          🛡️ Receta Verificada
+        </div>
+      </div>
+
+      <!-- Patient info -->
+      <div class="patient-info">
+        <div class="patient-info-label">Información del Paciente</div>
+        <div class="patient-name-big" id="pat-nombre">—</div>
+        <div class="patient-meta">
+          <div class="meta-chip">
+            <div class="meta-chip-dot"></div>
+            <span>Fecha emisión: <span id="rx-fecha">—</span></span>
+          </div>
+          <div class="meta-chip">
+            <div class="meta-chip-dot"></div>
+            <span id="rx-uuid-short">ID: —</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Medications -->
+      <div class="rx-section" id="section-meds">
+        <div class="rx-section-header">
+          <span class="rx-section-icon">💊</span>
+          <span class="rx-section-title">Medicación / Recetario</span>
+          <span class="rx-section-count" id="meds-count">0</span>
+        </div>
+        <div class="rx-list" id="meds-list"></div>
+      </div>
+
+      <!-- Diet -->
+      <div class="rx-section" id="section-diet">
+        <div class="rx-section-header">
+          <span class="rx-section-icon">🍽️</span>
+          <span class="rx-section-title">Plan Nutricional / Dieta</span>
+          <span class="rx-section-count" id="diet-count">0</span>
+        </div>
+        <div class="rx-list" id="diet-list"></div>
+      </div>
+
+      <!-- Routine -->
+      <div class="rx-section" id="section-routine">
+        <div class="rx-section-header">
+          <span class="rx-section-icon">💪</span>
+          <span class="rx-section-title">Plan de Ejercicio / Rutina</span>
+          <span class="rx-section-count" id="routine-count">0</span>
+        </div>
+        <div class="rx-list" id="routine-list"></div>
+      </div>
+
+    </div>
+
+    <!-- Actions -->
+    <div class="card-actions">
+      <button class="action-btn primary" onclick="downloadPlan()">
+        ⬇️ Descargar Plan
+      </button>
+      <button class="action-btn green-btn" id="btn-patient-portal" onclick="goToPatientPortal()" style="display:none">
+        👤 Mi Portal
+      </button>
+      <button class="action-btn secondary" onclick="window.print()">
+        🖨️ Imprimir
+      </button>
+    </div>
+
+    <!-- Verify footer -->
+    <div class="verify-footer">
+      Receta digital verificada por DentaFlow • Válida solo si coincide con los registros del sistema •
+      ID: <code id="rx-uuid-footer">—</code>
+    </div>
+  </div>
+
+  <!-- Error Card -->
+  <div class="error-card" id="error-card">
+    <div class="error-icon">🔍</div>
+    <div class="error-title">Receta no encontrada</div>
+    <div class="error-sub">Este código de prescripción no coincide con nuestros registros o puede haber sido revocado. Por favor consulta con tu médico.</div>
+  </div>
+
+  <!-- Page Footer -->
+  <div class="page-footer">© 2026 DentaFlow — Motor de Prescripción Digital</div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <script>
+    let verifiedData = null;
+
+    async function verifyPrescription() {
+      const parts = window.location.pathname.split('/');
+      let uuid = parts[parts.length - 1];
+      if (!uuid || uuid === 'verify.html') {
+        const params = new URLSearchParams(window.location.search);
+        uuid = params.get('id') || params.get('uuid') || '';
+      }
+
+      if (!uuid) { showError(); return; }
+
+      try {
+        const res = await fetch('/api/verify/' + uuid);
+        if (!res.ok) { showError(); return; }
+        const data = await res.json();
+        verifiedData = data;
+        renderPrescription(data);
+      } catch (e) {
+        showError();
+      }
+    }
+
+    function renderPrescription(data) {
+      document.getElementById('loading-spinner').style.display = 'none';
+      const card = document.getElementById('verify-card');
+      card.style.display = 'block';
+
+      const rx = data.receta || {};
+      const uuid = rx.uuid || '';
+
+      document.getElementById('pat-nombre').textContent = data.pacienteNombre || 'Paciente';
+      
+      const dateStr = rx.updatedAt ? new Date(rx.updatedAt).toLocaleDateString('es-DO', {
+        day: 'numeric', month: 'long', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      }) : '—';
+      document.getElementById('rx-fecha').textContent = dateStr;
+      document.getElementById('rx-uuid-short').textContent = 'ID: ' + (uuid ? uuid.slice(0,8).toUpperCase() + '…' : '—');
+      document.getElementById('rx-uuid-footer').textContent = uuid || '—';
+
+      // Patient portal button
+      if (data.pacienteId) {
+        const btn = document.getElementById('btn-patient-portal');
+        btn.style.display = 'flex';
+        btn.dataset.patientId = data.pacienteId;
+      }
+
+      // Render Medications
+      const meds = rx.medicamentos || [];
+      document.getElementById('meds-count').textContent = meds.length;
+      const medsList = document.getElementById('meds-list');
+      if (meds.length > 0) {
+        medsList.innerHTML = meds.map(m => `
+          <div class="rx-item">
+            <div class="rx-item-name">💊 ${escHtml(m.nombre)}${m.dosis ? ` — <span style="color:var(--text2);font-weight:500">${escHtml(m.dosis)}</span>` : ''}</div>
+            <div class="rx-item-details">
+              ${m.frecuencia ? `<strong>Frecuencia:</strong> ${escHtml(m.frecuencia)}` : ''}
+              ${m.duracion ? ` &nbsp;·&nbsp; <strong>Duración:</strong> ${escHtml(m.duracion)}` : ''}
+              ${(m.notes || m.notas) ? `<br><strong>Instrucciones:</strong> ${escHtml(m.notes || m.notas)}` : ''}
+            </div>
+          </div>
+        `).join('');
+      } else {
+        medsList.innerHTML = '<div class="rx-empty">Sin medicamentos prescritos.</div>';
+      }
+
+      // Render Diet
+      const diet = rx.dieta || [];
+      document.getElementById('diet-count').textContent = diet.length;
+      const dietList = document.getElementById('diet-list');
+      if (diet.length > 0) {
+        dietList.innerHTML = diet.map(d => `
+          <div class="rx-item">
+            <div class="rx-item-name">🍽️ ${escHtml(d.nombre)}</div>
+            ${d.alimentos ? `<div class="rx-item-details">${escHtml(d.alimentos)}</div>` : ''}
+          </div>
+        `).join('');
+      } else {
+        dietList.innerHTML = '<div class="rx-empty">Sin indicaciones dietéticas.</div>';
+      }
+
+      // Render Routine
+      const routine = rx.rutina || [];
+      document.getElementById('routine-count').textContent = routine.length;
+      const routineList = document.getElementById('routine-list');
+      if (routine.length > 0) {
+        routineList.innerHTML = routine.map(r => `
+          <div class="rx-item">
+            <div class="rx-item-name">💪 ${escHtml(r.ejercicio)}</div>
+            <div class="rx-item-details">
+              ${r.series ? `<strong>Series:</strong> ${escHtml(r.series)}` : ''}
+              ${r.reps ? ` &nbsp;·&nbsp; <strong>Reps:</strong> ${escHtml(r.reps)}` : ''}
+              ${r.frecuencia ? ` &nbsp;·&nbsp; <strong>Frecuencia:</strong> ${escHtml(r.frecuencia)}` : ''}
+            </div>
+          </div>
+        `).join('');
+      } else {
+        routineList.innerHTML = '<div class="rx-empty">Sin rutina de ejercicio prescrita.</div>';
+      }
+    }
+
+    function goToPatientPortal() {
+      const btn = document.getElementById('btn-patient-portal');
+      const pid = btn.dataset.patientId;
+      if (pid) window.location.href = `/patient/${pid}/today`;
+    }
+
+    function downloadPlan() {
+      if (!verifiedData) return;
+      const rx = verifiedData.receta || {};
+      const nombre = verifiedData.pacienteNombre || 'Paciente';
+      const fecha = rx.updatedAt ? new Date(rx.updatedAt).toLocaleDateString('es-DO', {
+        weekday:'long', day:'numeric', month:'long', year:'numeric'
+      }) : new Date().toLocaleDateString('es-DO');
+
+      let txt = `╔══════════════════════════════════════╗\n`;
+      txt += `║   RECETA DIGITAL VERIFICADA           ║\n`;
+      txt += `║        DentaFlow                      ║\n`;
+      txt += `╚══════════════════════════════════════╝\n\n`;
+      txt += `Paciente: ${nombre}\n`;
+      txt += `Fecha emisión: ${fecha}\n`;
+      txt += `ID Receta: ${rx.uuid || '—'}\n`;
+      txt += `══════════════════════════════════════\n\n`;
+
+      if (rx.medicamentos && rx.medicamentos.length) {
+        txt += `💊 MEDICACIÓN\n`;
+        txt += `──────────────────────────────────────\n`;
+        rx.medicamentos.forEach((m, i) => {
+          txt += `${i+1}. ${m.nombre || ''}${m.dosis ? ' ('+m.dosis+')' : ''}\n`;
+          if (m.frecuencia) txt += `   Frecuencia: ${m.frecuencia}\n`;
+          if (m.duracion) txt += `   Duración: ${m.duracion}\n`;
+          if (m.notas || m.notes) txt += `   Instrucciones: ${m.notas || m.notes}\n`;
+        });
+        txt += `\n`;
+      }
+
+      if (rx.dieta && rx.dieta.length) {
+        txt += `🍽️ PLAN NUTRICIONAL\n`;
+        txt += `──────────────────────────────────────\n`;
+        rx.dieta.forEach((d, i) => {
+          txt += `${i+1}. ${d.nombre || ''}\n`;
+          if (d.alimentos) txt += `   ${d.alimentos}\n`;
+        });
+        txt += `\n`;
+      }
+
+      if (rx.rutina && rx.rutina.length) {
+        txt += `💪 RUTINA DE EJERCICIO\n`;
+        txt += `──────────────────────────────────────\n`;
+        rx.rutina.forEach((r, i) => {
+          txt += `${i+1}. ${r.ejercicio || ''}\n`;
+          if (r.series && r.reps) txt += `   ${r.series} series × ${r.reps} repeticiones\n`;
+          if (r.frecuencia) txt += `   Frecuencia: ${r.frecuencia}\n`;
+        });
+        txt += `\n`;
+      }
+
+      txt += `══════════════════════════════════════\n`;
+      txt += `Verificado en: ${window.location.href}\n`;
+      txt += `© 2026 DentaFlow — Motor de Prescripción Digital\n`;
+
+      const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `receta-${nombre.replace(/\s+/g,'-').toLowerCase()}-dentaflow.txt`;
+      a.click();
+      showToast('⬇️ Plan descargado correctamente');
+    }
+
+    function showError() {
+      document.getElementById('loading-spinner').style.display = 'none';
+      document.getElementById('error-card').style.display = 'block';
+    }
+
+    function escHtml(s) {
+      if (!s) return '';
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    let toastTimeout;
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => el.classList.remove('show'), 2500);
+    }
+
+    verifyPrescription();
+  </script>
+</body>
+</html>

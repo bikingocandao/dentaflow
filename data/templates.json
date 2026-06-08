@@ -1,0 +1,201 @@
+[
+  {
+    "id": "TPL-ORTODONCIA-01",
+    "nombre": "🦷 Ortodoncia — Primer Mes",
+    "descripcion": "Plan inicial para pacientes que inician tratamiento de ortodoncia. Incluye analgésicos, higiene oral y dieta blanda.",
+    "diagnostico": "Maloclusión dental / Inicio de ortodoncia",
+    "medicamentos": [
+      { "nombre": "Ibuprofeno 400mg", "dosis": "1 tableta", "frecuencia": "Cada 8h si hay dolor", "duracion": "3 días", "notas": "Tomar con alimentos" },
+      { "nombre": "Enjuague bucal con flúor", "dosis": "15ml", "frecuencia": "2 veces al día", "duracion": "Permanente", "notas": "No enjuagar con agua después" }
+    ],
+    "dieta": [
+      { "nombre": "Dieta blanda", "alimentos": "Yogur, puré de papa, sopas, frutas suaves, huevo" },
+      { "nombre": "Evitar", "alimentos": "Palomitas, dulces duros, caramelos pegajosos, hielo, pan duro" },
+      { "nombre": "Hidratación", "alimentos": "Mínimo 8 vasos de agua al día, sin bebidas carbonatadas" }
+    ],
+    "rutina": [
+      { "ejercicio": "Cepillado dental con cepillo ortodóncico", "series": "3", "reps": "2 min", "frecuencia": "Después de cada comida" },
+      { "ejercicio": "Uso de hilo interdental / pasador", "series": "1", "reps": "5 min", "frecuencia": "Cada noche antes de dormir" }
+    ],
+    "creadoEn": "2026-06-07T00:00:00.000Z"
+  },
+  {
+    "id": "TPL-BLANQUEAMIENTO-01",
+    "nombre": "✨ Blanqueamiento Dental",
+    "descripcion": "Protocolo post-blanqueamiento para reducir sensibilidad y mantener resultados.",
+    "diagnostico": "Tratamiento estético de blanqueamiento",
+    "medicamentos": [
+      { "nombre": "Gel desensibilizante (Sensodyne Rapid)", "dosis": "Aplicar en cepillo", "frecuencia": "2 veces al día", "duracion": "2 semanas", "notas": "Usar durante y después del tratamiento" },
+      { "nombre": "Vitamina D3 1000 UI", "dosis": "1 cápsula", "frecuencia": "1 vez al día", "duracion": "30 días", "notas": "Con el desayuno" }
+    ],
+    "dieta": [
+      { "nombre": "Dieta blanca (primeras 48h)", "alimentos": "Arroz blanco, pollo hervido, papa, leche, queso blanco, pan blanco" },
+      { "nombre": "Evitar", "alimentos": "Café, vino tinto, té, salsas oscuras, frutas muy pigmentadas, tabaco" },
+      { "nombre": "Recomendado", "alimentos": "Agua, leche, manzana, pera, coliflor, apio" }
+    ],
+    "rutina": [
+      { "ejercicio": "Cepillado suave con pasta para sensibilidad", "series": "2", "reps": "2 min", "frecuencia": "Mañana y noche" },
+      { "ejercicio": "Enjuague con agua tibia + bicarbonato", "series": "1", "reps": "1 min", "frecuencia": "Cada 12h los primeros 3 días" }
+    ],
+    "creadoEn": "2026-06-07T00:00:00.000Z"
+  },
+  {
+    "id": "TPL-EXTRACCION-01",
+    "nombre": "🩹 Post-Extracción Dental",
+    "descripcion": "Cuidados esenciales después de una extracción simple o muela del juicio.",
+    "diagnostico": "Post-extracción dental / Alveolitis preventiva",
+    "medicamentos": [
+      { "nombre": "Amoxicilina 500mg", "dosis": "1 cápsula", "frecuencia": "Cada 8 horas", "duracion": "7 días", "notas": "Completar todo el ciclo aunque mejore" },
+      { "nombre": "Ibuprofeno 600mg", "dosis": "1 tableta", "frecuencia": "Cada 6-8h si hay dolor", "duracion": "3-5 días", "notas": "Con alimentos, no tomar en ayunas" },
+      { "nombre": "Colutorio de clorhexidina 0.12%", "dosis": "15ml", "frecuencia": "2 veces al día", "duracion": "7 días", "notas": "Comenzar 24h después de la extracción, no enjuagar" }
+    ],
+    "dieta": [
+      { "nombre": "Líquidos y blandos (primeras 24h)", "alimentos": "Caldos, yogur, helado sin trozos, gelatina, puré" },
+      { "nombre": "Semi-blanda (días 2-7)", "alimentos": "Arroz, pasta, huevo, pescado, aguacate, plátano" },
+      { "nombre": "Evitar", "alimentos": "Alimentos calientes, bebidas con pajilla/pitillo, alcohol, tabaco, comidas duras y crujientes" }
+    ],
+    "rutina": [
+      { "ejercicio": "Aplicar hielo envuelto en tela (primeras 6h)", "series": "10 min on", "reps": "10 min off", "frecuencia": "Alternar durante las primeras 6 horas" },
+      { "ejercicio": "Enjuague suave con agua tibia y sal", "series": "1", "reps": "30 segundos", "frecuencia": "A partir del día 2, después de cada comida" }
+    ],
+    "creadoEn": "2026-06-07T00:00:00.000Z"
+  },
+  {
+    "id": "TPL-GINGIVITIS-01",
+    "nombre": "🦠 Gingivitis / Periodontitis Leve",
+    "descripcion": "Plan de higiene intensiva para controlar la inflamación gingival.",
+    "diagnostico": "Gingivitis crónica / Periodontitis estadio I-II",
+    "medicamentos": [
+      { "nombre": "Colutorio de clorhexidina 0.12%", "dosis": "15ml", "frecuencia": "2 veces al día", "duracion": "14 días", "notas": "No enjuagar con agua. Puede causar tinción temporal" },
+      { "nombre": "Metronidazol 500mg", "dosis": "1 tableta", "frecuencia": "Cada 8 horas con alimentos", "duracion": "7 días", "notas": "No consumir alcohol durante el tratamiento" }
+    ],
+    "dieta": [
+      { "nombre": "Anti-inflamatoria", "alimentos": "Pescado azul, nueces, frutas y verduras frescas, jengibre, cúrcuma" },
+      { "nombre": "Evitar", "alimentos": "Azúcar refinada, harinas procesadas, alcohol, alimentos muy ácidos" },
+      { "nombre": "Vitamina C", "alimentos": "Naranja, kiwi, pimiento rojo, brócoli — para fortalecer las encías" }
+    ],
+    "rutina": [
+      { "ejercicio": "Cepillado con técnica Bass (cervical)", "series": "3", "reps": "3 min", "frecuencia": "Mañana, tarde y noche" },
+      { "ejercicio": "Uso de hilo dental", "series": "1", "reps": "5 min", "frecuencia": "Cada noche" },
+      { "ejercicio": "Masaje gingival con el dedo o cepillo suave", "series": "1", "reps": "2 min", "frecuencia": "1 vez al día" }
+    ],
+    "creadoEn": "2026-06-07T00:00:00.000Z"
+  },
+  {
+    "id": "TPL-ENDODONCIA-01",
+    "nombre": "🔬 Post-Endodoncia (Tratamiento de Canal)",
+    "descripcion": "Cuidados después de una endodoncia para control del dolor e infección.",
+    "diagnostico": "Necrosis pulpar / Tratamiento de conductos radiculares",
+    "medicamentos": [
+      { "nombre": "Amoxicilina 875mg + Ácido Clavulánico 125mg", "dosis": "1 comprimido", "frecuencia": "Cada 12 horas", "duracion": "7 días", "notas": "Tomar con agua y alimentos" },
+      { "nombre": "Naproxeno 500mg", "dosis": "1 tableta", "frecuencia": "Cada 12h si hay dolor", "duracion": "5 días", "notas": "Alternativo al ibuprofeno. Con alimentos." },
+      { "nombre": "Paracetamol 500mg", "dosis": "1-2 tabletas", "frecuencia": "Cada 6h si persiste el dolor", "duracion": "3 días", "notas": "Máximo 4g al día. Combinar con naproxeno." }
+    ],
+    "dieta": [
+      { "nombre": "Blanda los primeros días", "alimentos": "Sopas, puré, yogur, pasta bien cocida, pescado" },
+      { "nombre": "No morder con ese lado", "alimentos": "Evitar masticar del lado del diente tratado hasta que tenga la corona definitiva" }
+    ],
+    "rutina": [
+      { "ejercicio": "Cepillado con cepillo de cerdas suaves", "series": "2", "reps": "2 min", "frecuencia": "Mañana y noche, muy suavemente en la zona" },
+      { "ejercicio": "Evitar alimentos muy fríos o calientes", "series": "—", "reps": "—", "frecuencia": "Primeros 7 días" }
+    ],
+    "creadoEn": "2026-06-07T00:00:00.000Z"
+  },
+  {
+    "id": "TPL-DIABETES-DENTAL-01",
+    "nombre": "💉 Paciente Diabético — Control Oral",
+    "descripcion": "Plan dental preventivo para pacientes con diabetes tipo 2.",
+    "diagnostico": "Diabetes tipo 2 / Higiene oral preventiva",
+    "medicamentos": [
+      { "nombre": "Colutorios antisépticos sin alcohol", "dosis": "15ml", "frecuencia": "2 veces al día", "duracion": "Permanente", "notas": "Usar sin alcohol para evitar resequedad bucal" },
+      { "nombre": "Xilitol (chicle o pastilla)", "dosis": "1 pastilla", "frecuencia": "Después de cada comida", "duracion": "Permanente", "notas": "Reduce Streptococcus mutans, no afecta glucosa" }
+    ],
+    "dieta": [
+      { "nombre": "Baja en azúcar", "alimentos": "Verduras, legumbres, proteínas magras, frutos secos sin sal" },
+      { "nombre": "Evitar", "alimentos": "Jugos de fruta, dulces, pan blanco, bebidas azucaradas, miel, frutas muy dulces en exceso" },
+      { "nombre": "Control glucémico oral", "alimentos": "Mantener glucosa en rango: revisar niveles antes de procedimientos dentales" }
+    ],
+    "rutina": [
+      { "ejercicio": "Cepillado completo después de cada comida", "series": "3", "reps": "2 min", "frecuencia": "Desayuno, almuerzo y cena" },
+      { "ejercicio": "Revisión dental profesional", "series": "—", "reps": "—", "frecuencia": "Cada 3 meses (más frecuente que el paciente promedio)" },
+      { "ejercicio": "Inspección en espejo de encías", "series": "1", "reps": "2 min", "frecuencia": "Semanal — buscar sangrado o hinchazón" }
+    ],
+    "creadoEn": "2026-06-07T00:00:00.000Z"
+  },
+  {
+    "id": "TPL-IMPLANTE-01",
+    "nombre": "🔩 Post-Implante Dental",
+    "descripcion": "Protocolo de cuidado tras la colocación de un implante oseointegrado.",
+    "diagnostico": "Post-cirugía implante dental — Fase de oseointegración",
+    "medicamentos": [
+      { "nombre": "Amoxicilina 500mg", "dosis": "1 cápsula", "frecuencia": "Cada 8 horas", "duracion": "7 días", "notas": "Iniciar el día antes de la cirugía si fue prescrito" },
+      { "nombre": "Ibuprofeno 600mg", "dosis": "1 tableta", "frecuencia": "Cada 8h las primeras 72h", "duracion": "3-5 días", "notas": "Mejor antiinflamatorio para esta cirugía" },
+      { "nombre": "Clorhexidina en gel 0.2%", "dosis": "Aplicar en zona con hisopo", "frecuencia": "2 veces al día", "duracion": "14 días", "notas": "No frotar la zona del implante directamente" }
+    ],
+    "dieta": [
+      { "nombre": "Líquida / muy blanda (semana 1)", "alimentos": "Batidos proteicos, sopas, yogur, puré, huevo scrambled" },
+      { "nombre": "Semi-blanda (semana 2-4)", "alimentos": "Pescado, pollo tierno, pasta, aguacate, arroz" },
+      { "nombre": "Evitar siempre", "alimentos": "Tabaco (principal enemigo del implante), alcohol, alimentos muy calientes o duros en la zona" }
+    ],
+    "rutina": [
+      { "ejercicio": "No cepillar la zona del implante (semana 1)", "series": "—", "reps": "—", "frecuencia": "Usar solo gel de clorhexidina con hisopo" },
+      { "ejercicio": "Cepillado delicado de las otras zonas", "series": "2", "reps": "2 min", "frecuencia": "Mañana y noche" },
+      { "ejercicio": "Aplicar frío externamente en mejilla", "series": "15 min", "reps": "cada 45 min", "frecuencia": "Las primeras 6 horas post-cirugía" }
+    ],
+    "creadoEn": "2026-06-07T00:00:00.000Z"
+  },
+  {
+    "id": "TPL-NINOS-CARIES-01",
+    "nombre": "👦 Caries Infantil — Prevención",
+    "descripcion": "Plan preventivo para niños con caries temprana o alto riesgo cariogénico.",
+    "diagnostico": "Caries de primera infancia / Alto riesgo cariogénico",
+    "medicamentos": [
+      { "nombre": "Flúor barniz 5% (aplicado en consulta)", "dosis": "Aplicación profesional", "frecuencia": "Cada 3 meses", "duracion": "Preventivo anual", "notas": "No comer ni beber 30 min después" },
+      { "nombre": "Pasta dental con flúor 1000ppm", "dosis": "Porción del tamaño de un guisante", "frecuencia": "2 veces al día", "duracion": "Permanente", "notas": "Para mayores de 3 años. Enseñar a no tragar" }
+    ],
+    "dieta": [
+      { "nombre": "Reducir azúcar", "alimentos": "Agua, leche sin azúcar, frutas enteras, verduras, queso" },
+      { "nombre": "Evitar", "alimentos": "Jugos en caja/botella, gummy bears, caramelos, bebidas deportivas, galletas dulces entre comidas" },
+      { "nombre": "Colaciones saludables", "alimentos": "Manzana, zanahoria, apio, queso, nueces (según edad)" }
+    ],
+    "rutina": [
+      { "ejercicio": "Cepillado supervisado por padres", "series": "2", "reps": "2 min", "frecuencia": "Mañana al levantarse y noche antes de dormir" },
+      { "ejercicio": "Hilo dental con sostenedor para niños", "series": "1", "reps": "2 min", "frecuencia": "Cada noche (padres asisten)" },
+      { "ejercicio": "No biberón con líquidos azucarados al dormir", "series": "—", "reps": "—", "frecuencia": "Nunca — causa caries severa en bebés" }
+    ],
+    "creadoEn": "2026-06-07T00:00:00.000Z"
+  },
+  {
+    "id": "TMP-ajuste-ortodoncia",
+    "nombre": "🦷 Ajuste de Ortodoncia (Brackets)",
+    "descripcion": "Alivio de molestias y cuidados post-ajuste de brackets.",
+    "diagnostico": "Ajuste periódico de aparatología fija.",
+    "medicamentos": [
+      { "nombre": "Paracetamol 500mg", "dosis": "1 tableta", "frecuencia": "Cada 8 horas", "duracion": "3 días", "notas": "Tomar solo en caso de dolor o molestia intensa." }
+    ],
+    "dieta": [
+      { "nombre": "Dieta blanda de transición (Día 1-3)", "alimentos": "Caldos, sopas licuadas, purés, yogur, avena. Evitar masticar alimentos duros." },
+      { "nombre": "Restricción de alimentos duros y pegajosos", "alimentos": "Evitar comer chicles, caramelos pegajosos, nueces, manzanas enteras a mordiscos, pan tostado muy duro." }
+    ],
+    "rutina": [
+      { "ejercicio": "Higiene bucal minuciosa", "series": "Post-comida", "reps": "Cepillado completo", "frecuencia": "Utilizar cepillos interdentales o hilo especial (Superfloss) para retirar restos de comida entre brackets." }
+    ],
+    "creadoEn": "2026-06-07T00:00:00.000Z"
+  },
+  {
+    "id": "TMP-profilaxis",
+    "nombre": "🧹 Profilaxis y Curetaje Dental",
+    "descripcion": "Recomendaciones post-limpieza bucal profunda o raspado.",
+    "diagnostico": "Mantenimiento periodontal post-profilaxis.",
+    "medicamentos": [
+      { "nombre": "Clorhexidina 0.12% (Colutorio)", "dosis": "15 ml (Enjuague)", "frecuencia": "Cada 12 horas", "duracion": "7 días", "notas": "Enjuagarse durante 1 minuto después del cepillado. No ingerir alimentos en los siguientes 30 minutos." }
+    ],
+    "dieta": [
+      { "nombre": "Evitar tinciones y ácidos (24 horas)", "alimentos": "No consumir café, té, vino tinto, refrescos oscuros, ni comidas con muchos colorantes. Evitar cítricos si hay sensibilidad." }
+    ],
+    "rutina": [
+      { "ejercicio": "Cepillado ultrasuave", "series": "3 veces al día", "reps": "Cerdas suaves", "frecuencia": "Cepillar con movimientos circulares suaves. Puede presentarse leve sangrado las primeras 24 horas." }
+    ],
+    "creadoEn": "2026-06-07T00:00:00.000Z"
+  }
+]

@@ -1,0 +1,71 @@
+Created At: 2026-06-06T22:08:09Z
+Completed At: 2026-06-06T22:08:09Z
+File Path: `file:///c:/Users/pc/chatbotIA/public/index.html`
+Total Lines: 3622
+Total Bytes: 200700
+Showing lines 1 to 250
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DentaFlow — Gestión Clínica</title>
+<meta name="description" content="Panel de gestión clínica con IA integrada para WhatsApp">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="/exceljs.min.js"></script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>Ã°Å¸Â¦·</text></svg>">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f5f3;
+    --bg-tertiary: #eeede9;
+    --text-primary: #1a1a18;
+    --text-secondary: #6b6b67;
+    --text-tertiary: #9b9b97;
+    --border: rgba(0,0,0,0.12);
+    --border-hover: rgba(0,0,0,0.22);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --blue-bg: #e6f1fb; --blue-text: #185fa5; --blue-border: #b5d4f4; --blue-mid: #378add;
+    --green-bg: #eaf3de; --green-text: #3b6d11; --green-border: #c0dd97;
+    --red-bg: #fcebeb; --red-text: #a32d2d; --red-border: #f7c1c1;
+    --amber-bg: #faeeda; --amber-text: #854f0b; --amber-border: #fac775;
+    --teal-bg: #e1f5ee; --teal-t
+<truncated 16782 bytes>
+ont-family: inherit; resize: vertical; }
+  .modal textarea:focus { outline: none; border-color: var(--blue-mid); }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+
+  /* NEW APPOINTMENT MODAL */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-field { display: flex; flex-direction: column; gap: 5px; }
+  .form-field.full { grid-column: 1 / -1; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--text-primary); color: var(--bg-primary); padding: 10px 16px; border-radius: var(--radius-md); font-size: 13px; z-index: 300; opacity: 0; transform: translateY(8px); transition: all .25s; pointer-events: none; display: flex; align-items: center; gap: 6px; max-width: 320px; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast i { font-size: 16px; color: #7fe4b3; flex-shrink: 0; }
+  .toast.error i { color: #f7c1c1; }
+
+  /* SPINNER */
+  .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--blue-mid); border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 3px; }
+
+  @media (max-width: 900px) {
+    .kpi-grid { grid-template-columns: repeat(2,1fr); }
+    .two-col { grid-template-columns: 1fr; }
+    .sidebar { width: 52px; }
+    .sidebar .logo div, .sidebar .nav-section, .nav-item span { display: none; }
+    .nav-item { justify-content: center; padding: 10px; }
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

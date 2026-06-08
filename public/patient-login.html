@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Portal de Pacientes — DentaFlow</title>
+  <meta name="description" content="Accede a tu portal personal de tratamiento médico. Visualiza tus recetas, dieta y rutina prescrita.">
+  <meta name="theme-color" content="#08080d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DentaFlow">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3022/3022579.png">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #08080d;
+      --card-bg: rgba(255,255,255,0.03);
+      --card-border: rgba(255,255,255,0.07);
+      --accent: #4f8ef7;
+      --accent2: #7c3aed;
+      --accent-glow: rgba(79,142,247,0.2);
+      --text1: #f0f4ff;
+      --text2: #9ba3c0;
+      --text3: #555d78;
+      --error: #f87171;
+      --green: #34d399;
+    }
+
+    html, body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text1);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 16px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ─── BACKGROUND MESH ─── */
+    .bg-mesh {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 10%, rgba(79,142,247,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 80% 90%, rgba(124,58,237,0.10) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 60% 50%, rgba(16,185,129,0.04) 0%, transparent 60%);
+    }
+
+    .bg-grid {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* ─── LAYOUT ─── */
+    .page-wrap {
+      position: relative; z-index: 10;
+      width: 100%; max-width: 420px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 0;
+    }
+
+    /* ─── TOP BRAND ─── */
+    .brand-top {
+      text-align: center; margin-bottom: 28px;
+    }
+    .brand-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(79,142,247,0.1);
+      border: 1px solid rgba(79,142,247,0.2);
+      border-radius: 100px; padding: 6px 14px;
+      font-size: 11px; font-weight: 700;
+      color: var(--accent); letter-spacing: .5px;
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .brand-badge-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px rgba(52,211,153,0.6);
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity:1; transform:scale(1); }
+      50% { opacity:.5; transform:scale(.8); }
+    }
+    .brand-logo {
+      font-family: 'Outfit', sans-serif;
+      font-size: 42px; font-weight: 900;
+      letter-spacing: -2px;
+      background: linear-gradient(135deg, #f0f4ff 0%, #93c5fd 50%, #818cf8 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 4px; line-height: 1;
+    }
+    .brand-tagline {
+      font-size: 13px; color: var(--text3); font-weight: 500;
+    }
+
+    /* ─── LOGIN CARD ─── */
+    .login-card {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      padding: 32px 28px 28px;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04) inset,
+        0 30px 80px rgba(0,0,0,0.6),
+        0 0 60px rgba(79,142,247,0.05);
+      animation: cardIn .5s cubic-bezier(.16,1,.3,1) both;
+      position: relative; overflow: hidden;
+    }
+    @keyframes cardIn {
+      from { opacity:0; transform:translateY(24px) scale(0.97); }
+      to { opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    /* top gradient line */
+    .login-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
+      opacity: .7;
+    }
+
+    .card-header {
+      margin-bottom: 28px;
+    }
+    .card-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px; font-weight: 700; color: var(--text1);
+      margin-bottom: 6px; letter-spacing: -.3px;
+    }
+    .card-subtitle {
+      font-size: 13px; color: var(--text2); line-height: 1.5;
+    }
+
+    /* ─── TABS (phone / cédula) ─── */
+    .input-tabs {
+      display: flex; gap: 4px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--card-border);
+      border-radius: 14px; padding: 4px;
+      margin-bottom: 20px;
+    }
+    .input-tab {
+      flex: 1; padding: 8px;
+      border-radius: 10px; border: none;
+      background: transparent;
+      font-size: 12px; font-weight: 600;
+      color: var(--text3); cursor: pointer;
+      transition: all .2s;
+    }
+    .input-tab.active {
+      background: rgba(79,142,247,0.15);
+      color: var(--accent);
+      box-shadow: 0 2px 8px rgba(79,142,247,0.15);
+    }
+
+    /* ─── FORM ─── */
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: block; font-size: 11px; font-weight: 700;
+      color: var(--text3); text-transform: uppercase;
+      letter-spacing: .5px; margin-bottom: 8px;
+    }
+    .input-wrapper { position: relative; }
+    .input-prefix {
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 50px; display: flex; align-items: center; justify-content: center;
+      font-size: 18px; pointer-events: none;
+      border-right: 1px solid var(--card-border);
+    }
+    .form-input {
+      width: 100%; height: 52px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      color: var(--text1);
+      padding: 0 16px 0 62px;
+      font-size: 15px; font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: all .25s ease;
+      letter-spacing: .3px;
+    }
+    .form-input:focus {
+      border-color: rgba(79,142,247,.5);
+      background: rgba(79,142,247,.06);
+      box-shadow: 0 0 0 3px rgba(79,142,247,.12);
+    }
+    .form-input::placeholder { color: var(--text3); opacity: .8; }
+
+    /* ─── SUBMIT BUTTON ─── */
+    .btn-submit {
+      width: 100%; height: 52px;
+      background: linear-gradient(135deg, #4f8ef7, #7c3aed);
+      border: none; border-radius: 14px;
+      color: #fff; font-size: 15px; font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: all .25s ease;
+      box-shadow: 0 4px 20px rgba(79,142,247,0.35), 0 0 0 1px rgba(255,255,255,0.08) inset;
+      position: relative; overflow: hidden;
+    }
+    .btn-submit::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+      opacity: 0; transition: opacity .2s;
+    }
+    .btn-submit:hover::before { opacity: 1; }
+    .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(79,142,247,0.45); }
+    .btn-submit:active { transform: translateY(1px); }
+    .btn-submit:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+
+    /* ─── ERROR BOX ─── */
+    .error-box {
+      background: rgba(248,113,113,0.1);
+      border: 1px solid rgba(248,113,113,0.25);
+      border-radius: 12px; padding: 12px 14px;
+      color: var(--error); font-size: 12px; line-height: 1.4;
+      margin-bottom: 18px; display: none; text-align: center;
+      animation: shakeIn .3s ease;
+    }
+    @keyframes shakeIn {
+      0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)}
+    }
+
+    /* ─── DIVIDER ─── */
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 22px 0; color: var(--text3); font-size: 11px; font-weight: 600;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--card-border);
+    }
+
+    /* ─── FEATURES LIST ─── */
+    .features {
+      display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px;
+    }
+    .feature-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 12px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.05);
+      font-size: 12px; color: var(--text2);
+    }
+    .feature-icon { font-size: 18px; flex-shrink: 0; }
+    .feature-text strong { display: block; color: var(--text1); font-size: 12px; margin-bottom: 1px; }
+
+    /* ─── SPINNER ─── */
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid rgba(255,255,255,.25);
+      border-radius: 50%; border-top-color: #fff;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── FOOTER ─── */
+    .page-footer {
+      margin-top: 24px; text-align: center;
+      font-size: 11px; color: var(--text3);
+      z-index: 10; position: relative;
+      line-height: 1.6;
+    }
+    .page-footer a {
+      color: var(--accent); text-decoration: none; font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-mesh"></div>
+  <div class="bg-grid"></div>
+
+  <div class="page-wrap">
+
+    <!-- Brand header -->
+    <div class="brand-top">
+      <div class="brand-badge">
+        <span class="brand-badge-dot"></span>
+        Portal Activo
+      </div>
+      <div class="brand-logo">DentaFlow</div>
+      <div class="brand-tagline">Motor de Prescripción Digital</div>
+    </div>
+
+    <!-- Login Card -->
+    <div class="login-card">
+      <div class="card-header">
+        <div class="card-title">Accede a tu plan médico</div>
+        <div class="card-subtitle">Ingresa el identificador que tu médico registró para ver tu tratamiento personalizado</div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="input-tabs">
+        <button class="input-tab active" id="tab-phone" onclick="switchTab('phone')">📱 Teléfono</button>
+        <button class="input-tab" id="tab-cedula" onclick="switchTab('cedula')">🪪 Cédula</button>
+      </div>
+
+      <!-- Error box -->
+      <div class="error-box" id="error-box">⚠️ &nbsp;<span id="error-text">Error</span></div>
+
+      <!-- Form -->
+      <div class="form-group">
+        <label class="form-label" id="input-label" for="patient-id-input">Número de WhatsApp</label>
+        <div class="input-wrapper">
+          <span class="input-prefix" id="input-icon">📱</span>
+          <input
+            type="tel"
+            id="patient-id-input"
+            class="form-input"
+            placeholder="Ej: 8095551234"
+            autocomplete="off"
+            inputmode="numeric"
+            onkeydown="if(event.key==='Enter') handleLogin()"
+          >
+        </div>
+      </div>
+
+      <button class="btn-submit" id="login-btn" onclick="handleLogin()">
+        <span id="btn-text">Ingresar a mi Portal</span>
+        <span id="btn-icon">→</span>
+      </button>
+
+      <div class="divider">Tu información</div>
+
+      <!-- Features -->
+      <div class="features">
+        <div class="feature-item">
+          <span class="feature-icon">💊</span>
+          <div class="feature-text">
+            <strong>Medicamentos</strong>
+            Dosis, frecuencia e instrucciones de tu receta
+          </div>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">🍽️</span>
+          <div class="feature-text">
+            <strong>Plan Nutricional</strong>
+            Dieta y alimentación personalizada
+          </div>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">💪</span>
+          <div class="feature-text">
+            <strong>Rutina de Ejercicio</strong>
+            Series, repeticiones y frecuencia semanal
+          </div>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">📲</span>
+          <div class="feature-text">
+            <strong>Instala la App</strong>
+            Accede como una app nativa en tu teléfono (iOS y Android)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="page-footer">
+      <p>© 2026 DentaFlow. Todos los derechos reservados.</p>
+      <p>¿Eres médico? <a href="/">Accede al panel médico</a></p>
+    </div>
+
+  </div>
+
+  <script>
+    // ── SERVICE WORKER ────────────────────────────────────
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+
+    let currentTab = 'phone';
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tab-phone').classList.toggle('active', tab === 'phone');
+      document.getElementById('tab-cedula').classList.toggle('active', tab === 'cedula');
+      
+      const input = document.getElementById('patient-id-input');
+      const label = document.getElementById('input-label');
+      const icon = document.getElementById('input-icon');
+
+      if (tab === 'phone') {
+        label.textContent = 'Número de WhatsApp';
+        input.placeholder = 'Ej: 8095551234';
+        input.inputMode = 'numeric';
+        input.type = 'tel';
+        icon.textContent = '📱';
+      } else {
+        label.textContent = 'Número de Cédula';
+        input.placeholder = 'Ej: 402-1234567-8';
+        input.inputMode = 'text';
+        input.type = 'text';
+        icon.textContent = '🪪';
+      }
+      
+      input.value = '';
+      hideError();
+      input.focus();
+    }
+
+    async function handleLogin() {
+      const input = document.getElementById('patient-id-input');
+      const btn = document.getElementById('login-btn');
+      const val = input.value.trim();
+
+      if (!val) {
+        showError(currentTab === 'phone'
+          ? 'Por favor ingresa tu número de teléfono.'
+          : 'Por favor ingresa tu número de cédula.');
+        input.focus();
+        return;
+      }
+
+      hideError();
+      setLoading(true);
+
+      try {
+        const res = await fetch('/api/patient-auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifier: val })
+        });
+
+        const data = await res.json();
+
+        if (data.success && data.url) {
+          // Animación de éxito antes de redirigir
+          btn.innerHTML = '<span style="font-size:20px">✅</span><span>¡Encontrado! Redirigiendo…</span>';
+          btn.style.background = 'linear-gradient(135deg,#059669,#10b981)';
+          setTimeout(() => {
+            window.location.href = data.url;
+          }, 600);
+        } else {
+          showError(data.error || 'Identificador no válido o paciente no registrado.');
+          setLoading(false);
+        }
+      } catch (e) {
+        showError('Error de conexión. Verifica tu internet e inténtalo de nuevo.');
+        setLoading(false);
+      }
+    }
+
+    function setLoading(loading) {
+      const btn = document.getElementById('login-btn');
+      const btnText = document.getElementById('btn-text');
+      const btnIcon = document.getElementById('btn-icon');
+      btn.disabled = loading;
+      if (loading) {
+        btnText.textContent = 'Verificando…';
+        btnIcon.innerHTML = '<div class="spinner"></div>';
+      } else {
+        btnText.textContent = 'Ingresar a mi Portal';
+        btnIcon.textContent = '→';
+      }
+    }
+
+    function showError(msg) {
+      const box = document.getElementById('error-box');
+      document.getElementById('error-text').textContent = msg;
+      box.style.display = 'block';
+      // Re-trigger animation
+      box.style.animation = 'none';
+      box.offsetHeight;
+      box.style.animation = '';
+    }
+
+    function hideError() {
+      document.getElementById('error-box').style.display = 'none';
+    }
+
+    // Auto-focus on load
+    document.getElementById('patient-id-input').focus();
+  </script>
+</body>
+</html>

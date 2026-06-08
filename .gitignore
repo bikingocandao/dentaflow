@@ -1,0 +1,7 @@
+node_modules/
+auth_info/
+.env
+logs/
+*.log
+data/conversations/
+public/_redirects
