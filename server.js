@@ -92,6 +92,9 @@ app.use((req, res, next) => {
   if (req.path === '/api/server-info' && req.method === 'GET') {
     return next();
   }
+  if (req.path === '/api/debug-env' && req.method === 'GET') {
+    return next(); // Temporal: diagnóstico de variables de entorno
+  }
   if (req.path === '/api/registro-qr' && req.method === 'GET') {
     return next();
   }
