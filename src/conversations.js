@@ -116,6 +116,7 @@ async function init() {
         nombre: '🦷 Ortodoncia — Primer Mes',
         descripcion: 'Plan inicial para pacientes que inician tratamiento de ortodoncia. Incluye analgésicos, higiene oral y dieta blanda.',
         diagnostico: 'Maloclusión dental / Inicio de ortodoncia',
+        categoria: 'odontologia',
         medicamentos: [
           { nombre: 'Ibuprofeno 400mg', dosis: '1 tableta', frecuencia: 'Cada 8h si hay dolor', duracion: '3 días', notas: 'Tomar con alimentos' },
           { nombre: 'Enjuague bucal con flúor', dosis: '15ml', frecuencia: '2 veces al día', duracion: 'Permanente', notas: 'No enjuagar con agua después' }
@@ -136,6 +137,7 @@ async function init() {
         nombre: '✨ Blanqueamiento Dental',
         descripcion: 'Protocolo post-blanqueamiento para reducir sensibilidad y mantener resultados.',
         diagnostico: 'Tratamiento estético de blanqueamiento',
+        categoria: 'odontologia',
         medicamentos: [
           { nombre: 'Gel desensibilizante (Sensodyne Rapid)', dosis: 'Aplicar en cepillo', frecuencia: '2 veces al día', duracion: '2 semanas', notas: 'Usar durante y después del tratamiento' },
           { nombre: 'Vitamina D3 1000 UI', dosis: '1 cápsula', frecuencia: '1 vez al día', duracion: '30 días', notas: 'Con el desayuno' }
@@ -156,6 +158,7 @@ async function init() {
         nombre: '🩹 Post-Extracción Dental',
         descripcion: 'Cuidados esenciales después de una extracción simple o muela del juicio.',
         diagnostico: 'Post-extracción dental / Alveolitis preventiva',
+        categoria: 'odontologia',
         medicamentos: [
           { nombre: 'Amoxicilina 500mg', dosis: '1 cápsula', frecuencia: 'Cada 8 horas', duracion: '7 días', notas: 'Completar todo el ciclo aunque mejore' },
           { nombre: 'Ibuprofeno 600mg', dosis: '1 tableta', frecuencia: 'Cada 6-8h si hay dolor', duracion: '3-5 días', notas: 'Con alimentos, no tomar en ayunas' },
@@ -177,6 +180,7 @@ async function init() {
         nombre: '🦠 Gingivitis / Periodontitis Leve',
         descripcion: 'Plan de higiene intensiva para controlar la inflamación gingival.',
         diagnostico: 'Gingivitis crónica / Periodontitis estadio I-II',
+        categoria: 'odontologia',
         medicamentos: [
           { nombre: 'Colutorio de clorhexidina 0.12%', dosis: '15ml', frecuencia: '2 veces al día', duracion: '14 días', notas: 'No enjuagar con agua. Puede causar tinción temporal' },
           { nombre: 'Metronidazol 500mg', dosis: '1 tableta', frecuencia: 'Cada 8 horas con alimentos', duracion: '7 días', notas: 'No consumir alcohol durante el tratamiento' }
@@ -194,86 +198,87 @@ async function init() {
         creadoEn: new Date().toISOString()
       },
       {
-        id: 'TPL-ENDODONCIA-01',
-        nombre: '🔬 Post-Endodoncia (Tratamiento de Canal)',
-        descripcion: 'Cuidados después de una endodoncia para control del dolor e infección.',
-        diagnostico: 'Necrosis pulpar / Tratamiento de conductos radiculares',
+        id: 'TPL-ACNE-01',
+        nombre: '✨ Dermatología — Control de Acné Vulgar',
+        descripcion: 'Tratamiento completo para acné moderado a severo. Incluye rutina de skin care, dieta baja en azúcares y medicamentos específicos.',
+        diagnostico: 'Acné Vulgar / Acné quístico inflamatorio',
+        categoria: 'dermatologia',
         medicamentos: [
-          { nombre: 'Amoxicilina 875mg + Ácido Clavulánico 125mg', dosis: '1 comprimido', frecuencia: 'Cada 12 horas', duracion: '7 días', notas: 'Tomar con agua y alimentos' },
-          { nombre: 'Naproxeno 500mg', dosis: '1 tableta', frecuencia: 'Cada 12h si hay dolor', duracion: '5 días', notas: 'Alternativo al ibuprofeno. Con alimentos.' },
-          { nombre: 'Paracetamol 500mg', dosis: '1-2 tabletas', frecuencia: 'Cada 6h si persiste el dolor', duracion: '3 días', notas: 'Máximo 4g al día. Combinar con naproxeno.' }
+          { nombre: 'Doxiciclina 100mg', dosis: '1 cápsula', frecuencia: 'Cada 24 horas con el almuerzo', duracion: '30 días', notas: 'No tomar acostado. Evitar exposición solar fuerte' },
+          { nombre: 'Gel de Adapaleno 0.1% + Peróxido de Benzilo', dosis: 'Capa delgada', frecuencia: '1 vez al día por las noches', duracion: '90 días', notas: 'Aplicar solo en zonas afectadas después de limpiar la piel' }
         ],
         dieta: [
-          { nombre: 'Blanda los primeros días', alimentos: 'Sopas, puré, yogur, pasta bien cocida, pescado' },
-          { nombre: 'No morder con ese lado', alimentos: 'Evitar masticar del lado del diente tratado hasta que tenga la corona definitiva' }
+          { nombre: 'Reducir lácteos y azúcares', alimentos: 'Evitar leche entera, quesos grasos, chocolates y dulces procesados' },
+          { nombre: 'Alimentos recomendados', alimentos: 'Vegetales verdes, pescado (rico en Omega 3), té verde, frutos secos y semillas' },
+          { nombre: 'Hidratación óptima', alimentos: 'Tomar al menos 2 a 2.5 litros de agua al día' }
         ],
         rutina: [
-          { ejercicio: 'Cepillado con cepillo de cerdas suaves', series: '2', reps: '2 min', frecuencia: 'Mañana y noche, muy suavemente en la zona' },
-          { ejercicio: 'Evitar alimentos muy fríos o calientes', series: '—', reps: '—', frecuencia: 'Primeros 7 días' }
+          { ejercicio: 'Limpieza con dermolimpiador espumoso', series: '2', reps: '1 min', frecuencia: 'Mañana y noche antes de otros productos' },
+          { ejercicio: 'Hidratante no comedogénico (toque seco)', series: '2', reps: '—', frecuencia: 'Mañana y noche después de limpiar' },
+          { ejercicio: 'Protector solar SPF 50+ toque seco', series: '3', reps: '—', frecuencia: 'Cada 4 horas durante el día' }
         ],
         creadoEn: new Date().toISOString()
       },
       {
-        id: 'TPL-DIABETES-DENTAL-01',
-        nombre: '💉 Paciente Diabético — Control Oral',
-        descripcion: 'Plan dental preventivo para pacientes con diabetes tipo 2.',
-        diagnostico: 'Diabetes tipo 2 / Higiene oral preventiva',
+        id: 'TPL-DERMATITIS-01',
+        nombre: '🧴 Dermatología — Dermatitis Atópica / Piel Seca',
+        descripcion: 'Protocolo de cuidado intensivo para restaurar la barrera cutánea y calmar la picazón.',
+        diagnostico: 'Dermatitis atópica / Xerosis cutánea severa',
+        categoria: 'dermatologia',
         medicamentos: [
-          { nombre: 'Colutorios antisépticos sin alcohol', dosis: '15ml', frecuencia: '2 veces al día', duracion: 'Permanente', notas: 'Usar sin alcohol para evitar resequedad bucal' },
-          { nombre: 'Xilitol (chicle o pastilla)', dosis: '1 pastilla', frecuencia: 'Después de cada comida', duracion: 'Permanente', notas: 'Reduce Streptococcus mutans, no afecta glucosa' }
+          { nombre: 'Crema con hidrocortisona 1% (u otro corticoide suave)', dosis: 'Capa muy delgada en brote', frecuencia: 'Cada 12 horas', duracion: '5-7 días', notas: 'Solo aplicar en áreas con enrojecimiento y picazón extrema' },
+          { nombre: 'Cetirizina 10mg (antihistamínico)', dosis: '1 tableta', frecuencia: 'Cada 24h por las noches', duracion: '10 días', notas: 'Ayuda a reducir la picazón nocturna' }
         ],
         dieta: [
-          { nombre: 'Baja en azúcar', alimentos: 'Verduras, legumbres, proteínas magras, frutos secos sin sal' },
-          { nombre: 'Evitar', alimentos: 'Jugos de fruta, dulces, pan blanco, bebidas azucaradas, miel, frutas muy dulces en exceso' },
-          { nombre: 'Control glucémico oral', alimentos: 'Mantener glucosa en rango: revisar niveles antes de procedimientos dentales' }
+          { nombre: 'Anti-inflamatoria y Omega 3', alimentos: 'Salmón, linaza, chía, aguacate, frutos rojos' },
+          { nombre: 'Evitar alérgenos comunes', alimentos: 'Monitorear si hay brotes con huevo, maní o mariscos' }
         ],
         rutina: [
-          { ejercicio: 'Cepillado completo después de cada comida', series: '3', reps: '2 min', frecuencia: 'Desayuno, almuerzo y cena' },
-          { ejercicio: 'Revisión dental profesional', series: '—', reps: '—', frecuencia: 'Cada 3 meses (más frecuente que el paciente promedio)' },
-          { ejercicio: 'Inspección en espejo de encías', series: '1', reps: '2 min', frecuencia: 'Semanal — buscar sangrado o hinchazón' }
+          { ejercicio: 'Baños cortos con agua templada (no caliente)', series: '1', reps: '5-10 min', frecuencia: 'Diario — secar a toques suaves' },
+          { ejercicio: 'Crema emoliente reparadora (Cerave/Mustela)', series: '3', reps: '—', frecuencia: 'Aplicar inmediatamente después del baño y cada 8 horas' },
+          { ejercicio: 'Ropa de algodón holgada', series: '—', reps: '—', frecuencia: 'Permanente — evitar tejidos sintéticos o lana' }
         ],
         creadoEn: new Date().toISOString()
       },
       {
-        id: 'TPL-IMPLANTE-01',
-        nombre: '🔩 Post-Implante Dental',
-        descripcion: 'Protocolo de cuidado tras la colocación de un implante oseointegrado.',
-        diagnostico: 'Post-cirugía implante dental — Fase de oseointegración',
+        id: 'TPL-ANSIEDAD-01',
+        nombre: '🧠 Psicología — Terapia de Control de Ansiedad',
+        descripcion: 'Plan terapéutico semanal para control del estrés, ansiedad generalizada y regulación emocional.',
+        diagnostico: 'Trastorno de ansiedad generalizada / Estrés agudo',
+        categoria: 'psicologia',
         medicamentos: [
-          { nombre: 'Amoxicilina 500mg', dosis: '1 cápsula', frecuencia: 'Cada 8 horas', duracion: '7 días', notas: 'Iniciar el día antes de la cirugía si fue prescrito' },
-          { nombre: 'Ibuprofeno 600mg', dosis: '1 tableta', frecuencia: 'Cada 8h las primeras 72h', duracion: '3-5 días', notas: 'Mejor antiinflamatorio para esta cirugía' },
-          { nombre: 'Clorhexidina en gel 0.2%', dosis: 'Aplicar en zona con hisopo', frecuencia: '2 veces al día', duracion: '14 días', notas: 'No frotar la zona del implante directamente' }
+          { nombre: 'Suplemento de Ashwagandha 500mg (opcional)', dosis: '1 cápsula', frecuencia: 'Cada 24h con la cena', duracion: '60 días', notas: 'Ayuda a reducir el cortisol de forma natural' },
+          { nombre: 'Infusión relajante (Manzanilla/Tila)', dosis: '1 taza caliente', frecuencia: 'Antes de dormir', duracion: 'Permanente', notas: 'Fomentar la higiene de sueño' }
         ],
         dieta: [
-          { nombre: 'Líquida / muy blanda (semana 1)', alimentos: 'Batidos proteicos, sopas, yogur, puré, huevo scrambled' },
-          { nombre: 'Semi-blanda (semana 2-4)', alimentos: 'Pescado, pollo tierno, pasta, aguacate, arroz' },
-          { nombre: 'Evitar siempre', alimentos: 'Tabaco (principal enemigo del implante), alcohol, alimentos muy calientes o duros en la zona' }
+          { nombre: 'Cero estimulantes', alimentos: 'Evitar café, té negro, bebidas energizantes, refrescos de cola y alcohol' },
+          { nombre: 'Alimentos con triptófano', alimentos: 'Incorporar plátano, avena, nueces, huevo, cacao puro (+70%)' },
+          { nombre: 'Evitar ayunos', alimentos: 'Comer a horas regulares para evitar bajas de azúcar que imiten ansiedad' }
         ],
         rutina: [
-          { ejercicio: 'No cepillar la zona del implante (semana 1)', series: '—', reps: '—', frecuencia: 'Usar solo gel de clorhexidina con hisopo' },
-          { ejercicio: 'Cepillado delicado de las otras zonas', series: '2', reps: '2 min', frecuencia: 'Mañana y noche' },
-          { ejercicio: 'Aplicar frío externamente en mejilla', series: '15 min', reps: 'cada 45 min', frecuencia: 'Las primeras 6 horas post-cirugía' }
+          { ejercicio: 'Respiración diafragmática (técnica 4-7-8)', series: '3', reps: '5 ciclos', frecuencia: 'Al levantarse, a media tarde o en crisis' },
+          { ejercicio: 'Meditación Mindfulness (atención guiada)', series: '1', reps: '10 min', frecuencia: 'Cada mañana al despertar' },
+          { ejercicio: 'Ejercicio físico moderado (Caminar / Yoga)', series: '1', reps: '30 min', frecuencia: 'Mínimo 4 veces por semana' }
         ],
         creadoEn: new Date().toISOString()
       },
       {
-        id: 'TPL-NINOS-CARIES-01',
-        nombre: '👦 Caries Infantil — Prevención',
-        descripcion: 'Plan preventivo para niños con caries temprana o alto riesgo cariogénico.',
-        diagnostico: 'Caries de primera infancia / Alto riesgo cariogénico',
+        id: 'TPL-DEPRESION-01',
+        nombre: '🛋️ Psicología — Activación Conductual y Ánimo',
+        descripcion: 'Protocolo de reactivación física, social y mental para pacientes con desánimo o depresión leve.',
+        diagnostico: 'Episodio depresivo leve / Distimia / Apatía',
+        categoria: 'psicologia',
         medicamentos: [
-          { nombre: 'Flúor barniz 5% (aplicado en consulta)', dosis: 'Aplicación profesional', frecuencia: 'Cada 3 meses', duracion: 'Preventivo anual', notas: 'No comer ni beber 30 min después' },
-          { nombre: 'Pasta dental con flúor 1000ppm', dosis: 'Porción del tamaño de un guisante', frecuencia: '2 veces al día', duracion: 'Permanente', notas: 'Para mayores de 3 años. Enseñar a no tragar' }
+          { nombre: 'Complejo B (B6, B12)', dosis: '1 tableta', frecuencia: 'Cada mañana con el desayuno', duracion: '30 días', notas: 'Soporte al sistema nervioso y producción de energía' }
         ],
         dieta: [
-          { nombre: 'Reducir azúcar', alimentos: 'Agua, leche sin azúcar, frutas enteras, verduras, queso' },
-          { nombre: 'Evitar', alimentos: 'Jugos en caja/botella, gummy bears, caramelos, bebidas deportivas, galletas dulces entre comidas' },
-          { nombre: 'Colaciones saludables', alimentos: 'Manzana, zanahoria, apio, queso, nueces (según edad)' }
+          { nombre: 'Nutrición cerebral', alimentos: 'Frutos secos, pescado, vegetales de hojas verdes, arándanos, semillas de calabaza' },
+          { nombre: 'Limitar azúcares rápidos', alimentos: 'Evitar postres y refrescos que causan caídas bruscas de energía' }
         ],
         rutina: [
-          { ejercicio: 'Cepillado supervisado por padres', series: '2', reps: '2 min', frecuencia: 'Mañana al levantarse y noche antes de dormir' },
-          { ejercicio: 'Hilo dental con sostenedor para niños', series: '1', reps: '2 min', frecuencia: 'Cada noche (padres asisten)' },
-          { ejercicio: 'No biberón con líquidos azucarados al dormir', series: '—', reps: '—', frecuencia: 'Nunca — causa caries severa en bebés' }
+          { ejercicio: 'Caminata al aire libre bajo el sol', series: '1', reps: '20 min', frecuencia: 'Diario por la mañana (vitamina D y serotonina)' },
+          { ejercicio: 'Contacto social programado (llamada/café)', series: '1', reps: '—', frecuencia: 'Mínimo 2 veces por semana con amigos o familia' },
+          { ejercicio: 'Diario de gratitud (escribir 3 cosas buenas)', series: '1', reps: '5 min', frecuencia: 'Cada noche antes de dormir' }
         ],
         creadoEn: new Date().toISOString()
       }
@@ -281,6 +286,11 @@ async function init() {
     try {
       fs.writeFileSync(TEMPLATES_FILE, JSON.stringify(templates, null, 2));
       console.log('✅ Plantillas de ejemplo creadas exitosamente');
+      
+      // Upload to Supabase in background
+      for (const t of templates) {
+        supabase.saveTemplate(t).catch(e => console.error('[Supabase] Error seeding template:', e.message));
+      }
     } catch (e) {
       console.error('Error guardando plantillas de ejemplo:', e.message);
     }
@@ -971,6 +981,7 @@ function saveTemplate(data) {
     nombre: data.nombre || 'Plantilla Sin Nombre',
     descripcion: data.descripcion || '',
     diagnostico: data.diagnostico || '',
+    categoria: data.categoria || data.category || 'general',
     medicamentos: data.medicamentos || [],
     dieta: data.dieta || [],
     rutina: data.rutina || [],

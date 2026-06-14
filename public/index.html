@@ -207,6 +207,29 @@
   .msg-role { font-size: 10px; color: var(--text-tertiary); margin-top: 3px; text-align: right; }
   .chat-header { padding: 10px 14px; border-bottom: 0.5px solid var(--border); font-size: 12px; font-weight: 600; background: var(--bg-primary); }
 
+  .tpl-tab {
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    border: 0.5px solid var(--border);
+    transition: all 0.2s;
+    user-select: none;
+    display: inline-block;
+  }
+  .tpl-tab.active {
+    background: var(--blue-bg);
+    color: var(--blue-text);
+    border-color: var(--blue-border);
+  }
+  .tpl-tab:hover:not(.active) {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+
   /* CLIENTS GRID */
   .clients-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
   .client-card { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
@@ -1641,6 +1664,14 @@
                           <i class="ti ti-plus"></i> Nueva
                         </button>
                       </div>
+                      <!-- Category tabs bar -->
+                      <div style="display:flex;gap:6px;padding:8px 14px;overflow-x:auto;white-space:nowrap;border-bottom:0.5px solid var(--border);background:var(--bg-primary);" id="tpl-category-tabs">
+                        <span class="tpl-tab active" onclick="filterTemplatesByCategory('all')">Todos</span>
+                        <span class="tpl-tab" onclick="filterTemplatesByCategory('odontologia')">🦷 Odontología</span>
+                        <span class="tpl-tab" onclick="filterTemplatesByCategory('dermatologia')">✨ Dermatología</span>
+                        <span class="tpl-tab" onclick="filterTemplatesByCategory('psicologia')">🧠 Psicología</span>
+                        <span class="tpl-tab" onclick="filterTemplatesByCategory('medicina_general')">🩺 Medicina</span>
+                      </div>
                       <!-- Selector row -->
                       <div style="padding:10px 14px;display:flex;gap:8px;align-items:center">
                         <select id="rx-template-select" class="form-input" style="font-size:12px;flex:1;height:32px;padding:2px 10px;background:var(--bg-primary)" onchange="previewTemplate(this.value)">
@@ -2117,6 +2148,16 @@
       <div class="form-field">
         <label style="font-size:11px;font-weight:600;color:var(--text-secondary)">Diagnóstico asociado</label>
         <input type="text" id="tpl-diagnostico" class="form-input" placeholder="Ej: Gingivitis crónica">
+      </div>
+      <div class="form-field">
+        <label style="font-size:11px;font-weight:600;color:var(--text-secondary)">Categoría / Especialidad</label>
+        <select id="tpl-categoria" class="form-input">
+          <option value="odontologia">🦷 Odontología</option>
+          <option value="dermatologia">✨ Dermatología</option>
+          <option value="psicologia">🧠 Psicología</option>
+          <option value="medicina_general">🩺 Medicina General</option>
+          <option value="otro">Otros</option>
+        </select>
       </div>
     </div>
     <div class="modal-footer">
@@ -4664,18 +4705,40 @@ async function loadTemplates() {
   }
 }
 
+let currentFilteredCategory = 'all';
+
+function filterTemplatesByCategory(cat) {
+  currentFilteredCategory = cat;
+  
+  const container = document.getElementById('tpl-category-tabs');
+  if (container) {
+    container.querySelectorAll('.tpl-tab').forEach(el => el.classList.remove('active'));
+    const spans = Array.from(container.querySelectorAll('.tpl-tab'));
+    const matched = spans.find(span => {
+      const onclickAttr = span.getAttribute('onclick') || '';
+      return onclickAttr.includes(`'${cat}'`);
+    });
+    if (matched) matched.classList.add('active');
+  }
+  
+  renderTemplateSelect();
+}
+
 function renderTemplateSelect() {
   const select = document.getElementById('rx-template-select');
   if (!select) return;
   
+  let filtered = allTemplates;
+  if (currentFilteredCategory !== 'all') {
+    filtered = allTemplates.filter(t => (t.categoria || 'odontologia').toLowerCase() === currentFilteredCategory.toLowerCase());
+  }
+  
   select.innerHTML = '<option value="">— Seleccionar plantilla —</option>' + 
-    allTemplates.map(t => `<option value="${t.id}">${escHtml(t.nombre)}</option>`).join('');
+    filtered.map(t => `<option value="${t.id}">${escHtml(t.nombre)}</option>`).join('');
 
-  // Update count badge
   const badge = document.getElementById('tpl-count-badge');
-  if (badge) badge.textContent = `${allTemplates.length} plantilla${allTemplates.length !== 1 ? 's' : ''}`;
+  if (badge) badge.textContent = `${filtered.length} plantilla${filtered.length !== 1 ? 's' : ''}`;
 
-  // Reset preview
   const strip = document.getElementById('tpl-preview-strip');
   const applyBtn = document.getElementById('tpl-apply-btn');
   if (strip) strip.style.display = 'none';
@@ -4701,7 +4764,6 @@ function previewTemplate(id) {
   const diagEl = document.getElementById('tpl-preview-diag');
   if (diagEl) { diagEl.textContent = tpl.diagnostico || ''; diagEl.style.display = tpl.diagnostico ? '' : 'none'; }
 
-  // Set click handlers for Edit and Delete buttons
   const editBtn = document.getElementById('tpl-edit-btn');
   const deleteBtn = document.getElementById('tpl-delete-btn');
   
@@ -4718,6 +4780,7 @@ function previewTemplate(id) {
       document.getElementById('tpl-nombre').value = tpl.nombre || '';
       document.getElementById('tpl-descripcion').value = tpl.descripcion || '';
       document.getElementById('tpl-diagnostico').value = tpl.diagnostico || '';
+      document.getElementById('tpl-categoria').value = tpl.categoria || 'odontologia';
       document.getElementById('modal-save-template').classList.add('open');
     };
   }
@@ -4735,6 +4798,7 @@ function openSaveTemplateModal() {
   document.getElementById('tpl-nombre').value = '';
   document.getElementById('tpl-descripcion').value = '';
   document.getElementById('tpl-diagnostico').value = '';
+  document.getElementById('tpl-categoria').value = 'odontologia';
   document.getElementById('modal-save-template').classList.add('open');
 }
 
@@ -4742,6 +4806,7 @@ async function saveTemplateAction() {
   const nombre = document.getElementById('tpl-nombre').value.trim();
   const descripcion = document.getElementById('tpl-descripcion').value.trim();
   const diagnostico = document.getElementById('tpl-diagnostico').value.trim();
+  const categoria = document.getElementById('tpl-categoria').value;
   
   if (!nombre) {
     showToast('El nombre de la plantilla es obligatorio', true);
@@ -4753,6 +4818,7 @@ async function saveTemplateAction() {
     nombre,
     descripcion,
     diagnostico,
+    categoria,
     dieta: rxDiet,
     rutina: rxRoutine,
     medicamentos: rxMeds
