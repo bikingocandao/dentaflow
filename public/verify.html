@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verificación de Receta Digital — DentaFlow</title>
-  <meta name="description" content="Validación oficial en tiempo real de prescripciones y tratamientos emitidos por DentaFlow.">
+  <title>Verificación de Receta Digital — Clinic Full</title>
+  <meta name="description" content="Validación oficial en tiempo real de prescripciones y tratamientos emitidos por Clinic Full.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -368,7 +368,7 @@
 
     <!-- Verify footer -->
     <div class="verify-footer">
-      Receta digital verificada por DentaFlow • Válida solo si coincide con los registros del sistema •
+      Receta digital verificada por Clinic Full • Válida solo si coincide con los registros del sistema •
       ID: <code id="rx-uuid-footer">—</code>
     </div>
   </div>
@@ -381,7 +381,7 @@
   </div>
 
   <!-- Page Footer -->
-  <div class="page-footer">© 2026 DentaFlow — Motor de Prescripción Digital</div>
+  <div class="page-footer">© 2026 Clinic Full — Motor de Prescripción Digital</div>
 
   <!-- Toast -->
   <div id="toast"></div>
@@ -505,7 +505,7 @@
 
       let txt = `╔══════════════════════════════════════╗\n`;
       txt += `║   RECETA DIGITAL VERIFICADA           ║\n`;
-      txt += `║        DentaFlow                      ║\n`;
+      txt += `║        Clinic Full                      ║\n`;
       txt += `╚══════════════════════════════════════╝\n\n`;
       txt += `Paciente: ${nombre}\n`;
       txt += `Fecha emisión: ${fecha}\n`;
@@ -547,12 +547,12 @@
 
       txt += `══════════════════════════════════════\n`;
       txt += `Verificado en: ${window.location.href}\n`;
-      txt += `© 2026 DentaFlow — Motor de Prescripción Digital\n`;
+      txt += `© 2026 Clinic Full — Motor de Prescripción Digital\n`;
 
       const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `receta-${nombre.replace(/\s+/g,'-').toLowerCase()}-dentaflow.txt`;
+      a.download = `receta-${nombre.replace(/\s+/g,'-').toLowerCase()}-Clinic Full.txt`;
       a.click();
       showToast('⬇️ Plan descargado correctamente');
     }

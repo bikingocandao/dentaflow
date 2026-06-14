@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════
--- DENTAFLOW — SUPABASE SCHEMA
+-- CLINIC FULL — SUPABASE SCHEMA
 -- Ejecuta este SQL en Supabase SQL Editor
 -- Dashboard > SQL Editor > New Query
 -- ═══════════════════════════════════════════════

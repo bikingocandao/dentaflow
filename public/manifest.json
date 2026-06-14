@@ -1,7 +1,7 @@
 {
-  "name": "DentaFlow Pacientes",
-  "short_name": "DentaFlow",
-  "description": "Tu portal de tratamiento digital personalizado de DentaFlow.",
+  "name": "Clinic Full Pacientes",
+  "short_name": "Clinic Full",
+  "description": "Tu portal de tratamiento digital personalizado de Clinic Full.",
   "start_url": "/patient",
   "display": "standalone",
   "background_color": "#0a0a0f",

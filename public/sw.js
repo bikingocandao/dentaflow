@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dentaflow-v1';
+const CACHE_NAME = 'clinicfull-v2';
 const ASSETS = [
   '/patient',
   '/patient-login.html',

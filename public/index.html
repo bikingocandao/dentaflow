@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DentaFlow — Gestión Clínica</title>
+<title>Clinic Full — Gestión Clínica</title>
 <meta name="description" content="Panel de gestión clínica con IA integrada para WhatsApp">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1166,7 +1166,7 @@
         <div class="login-logo-icon" id="login-logo-icon" ondblclick="revealAdminPanel()" title="">
           <i class="ti ti-tooth"></i>
         </div>
-        <h1 class="login-title">DentaFlow</h1>
+        <h1 class="login-title">Clinic Full</h1>
         <p class="login-subtitle" id="login-biz-subtitle">Sistema de Prescripción Digital</p>
       </div>
 
@@ -1261,7 +1261,7 @@
   <nav class="sidebar">
     <div class="logo">
       <i class="ti ti-tooth"></i>
-      <div>DentaFlow<span id="biz-name-logo">Gestión Clínica</span></div>
+      <div>Clinic Full<span id="biz-name-logo">Gestión Clínica</span></div>
     </div>
     <div class="nav-section">Principal</div>
     <button class="nav-item active" id="nav-dashboard" onclick="showTab('dashboard',this)"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></button>
@@ -2371,7 +2371,7 @@
       </div>
     </div>
     <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
-      <a href="https://wa.me/18096581245?text=Hola%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n%20sobre%20los%20planes%20de%20DentaFlow" target="_blank" style="text-decoration:none;">
+      <a href="https://wa.me/18096581245?text=Hola%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n%20sobre%20los%20planes%20de%20Clinic%20Full" target="_blank" style="text-decoration:none;">
         <button class="btn" style="background:rgba(37,211,102,0.12); color:#25d366; border:0.5px solid rgba(37,211,102,0.3); font-size:12px; gap:6px; padding:8px 14px;">
           <i class="ti ti-brand-whatsapp"></i> Solicitar Demo / Más Info
         </button>
@@ -5259,7 +5259,7 @@ async function exportToExcel(data, filename, sheetName, headers, title) {
   titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
 
   // 2. Add metadata (date of generation)
-  const metaRow = worksheet.addRow([`Reporte generado el: ${new Date().toLocaleString('es-DO')} | Sistema: DentaFlow`]);
+  const metaRow = worksheet.addRow([`Reporte generado el: ${new Date().toLocaleString('es-DO')} | Sistema: Clinic Full`]);
   worksheet.mergeCells(`A2:${String.fromCharCode(65 + headers.length - 1)}2`);
   metaRow.height = 20;
   const metaCell = worksheet.getCell('A2');

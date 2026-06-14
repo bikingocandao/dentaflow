@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Mi Plan de Hoy — DentaFlow</title>
+  <title>Mi Plan de Hoy — Clinic Full</title>
   <meta name="description" content="Tu plan de tratamiento diario prescrito por tu médico.">
   <meta name="theme-color" content="#0a0a0f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="DentaFlow">
+  <meta name="apple-mobile-web-app-title" content="Clinic Full">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3022/3022579.png">
   <link rel="manifest" href="/manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -565,7 +565,7 @@
     <div class="header-top">
       <div class="header-brand">
         <span class="header-brand-icon">🩺</span>
-        <span class="header-brand-name">DentaFlow</span>
+        <span class="header-brand-name">Clinic Full</span>
       </div>
       <div id="doctor-badge" class="doctor-badge">Doctor</div>
     </div>
@@ -673,7 +673,7 @@
     <div class="qr-frame">
       <img id="rx-qr-img" src="" alt="QR Code">
     </div>
-    <div class="qr-verified-tag">🛡️ Firmado por DentaFlow</div>
+    <div class="qr-verified-tag">🛡️ Firmado por Clinic Full</div>
     <div class="modal-btn-row">
       <button class="modal-btn secondary" onclick="closeRxQRModal()">Cerrar</button>
       <button class="modal-btn primary-blue" onclick="downloadRxQR()">⬇️ Guardar QR</button>
@@ -687,7 +687,7 @@
 <div class="modal-overlay" id="modal-pwa" onclick="e => { if(e.target===this) closePwaModal(); }">
   <div class="modal-box">
     <div class="install-arrow">⬇️</div>
-    <div class="modal-title">Instala DentaFlow en tu teléfono</div>
+    <div class="modal-title">Instala Clinic Full en tu teléfono</div>
     <div class="modal-sub">Escanea el código QR con tu teléfono y sigue los pasos para instalar la app en tu pantalla de inicio</div>
 
     <!-- QR que lleva directo al portal del paciente -->
@@ -708,7 +708,7 @@
       </div>
       <div class="pwa-step">
         <span class="pwa-step-num">3</span>
-        <div class="pwa-step-text"><strong>¡Listo!</strong> El ícono de DentaFlow aparecerá en tu pantalla de inicio</div>
+        <div class="pwa-step-text"><strong>¡Listo!</strong> El ícono de Clinic Full aparecerá en tu pantalla de inicio</div>
       </div>
     </div>
 
@@ -1033,7 +1033,7 @@
     if (!plan || !plan.qrCode) return;
     const a = document.createElement('a');
     a.href = plan.qrCode;
-    a.download = `receta-dentaflow-${planData.nombre || 'paciente'}.png`;
+    a.download = `receta-Clinic Full-${planData.nombre || 'paciente'}.png`;
     a.click();
     showToast('⬇️ QR descargado');
   }
@@ -1077,7 +1077,7 @@
     const fecha = new Date().toLocaleDateString('es-DO', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
     
     let txt = `╔══════════════════════════════════════╗\n`;
-    txt += `║        PLAN MÉDICO - DENTAFLOW       ║\n`;
+    txt += `║        PLAN MÉDICO - Clinic Full       ║\n`;
     txt += `╚══════════════════════════════════════╝\n\n`;
     txt += `Paciente: ${nombre}\n`;
     txt += `Fecha: ${fecha}\n`;
@@ -1117,13 +1117,13 @@
     }
 
     txt += `──────────────────────────────────────\n`;
-    txt += `© 2026 DentaFlow - Motor de Prescripción Digital\n`;
+    txt += `© 2026 Clinic Full - Motor de Prescripción Digital\n`;
     txt += `Verifica tu receta en: ${window.location.origin}/verify/${plan.uuid || ''}\n`;
 
     const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `plan-dentaflow-${nombre.replace(/\s+/g,'-')}-${today}.txt`;
+    a.download = `plan-Clinic Full-${nombre.replace(/\s+/g,'-')}-${today}.txt`;
     a.click();
     showToast('⬇️ Plan descargado');
   }
@@ -1147,7 +1147,7 @@
     if (!plan || !plan.medicamentos || !plan.medicamentos.length) return;
     
     try {
-      new Notification("🩺 DentaFlow", {
+      new Notification("🩺 Clinic Full", {
         body: `Recordatorios activos para tus ${plan.medicamentos.length} medicamentos de hoy.`,
         icon: "https://cdn-icons-png.flaticon.com/512/3022/3022579.png"
       });

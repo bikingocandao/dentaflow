@@ -21,7 +21,7 @@ const QRCode = require('qrcode');
 
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
-const JWT_SECRET = process.env.JWT_SECRET || 'dentaflow-default-secret-9911';
+const JWT_SECRET = process.env.JWT_SECRET || 'Clinic Full-default-secret-9911';
 
 // Generar un token JWT simple de forma nativa sin dependencias
 function generateToken(username) {
@@ -1206,7 +1206,7 @@ async function start() {
   await connectWhatsApp();
 
   // Sistema de Autodespertar (Keep-Alive) para mantener Render activo 24/7
-  const renderUrl = process.env.RENDER_EXTERNAL_URL || 'https://dentaflow-tlqb.onrender.com';
+  const renderUrl = process.env.RENDER_EXTERNAL_URL || 'https://Clinic Full-tlqb.onrender.com';
   console.log(`📡 [Keep-Alive] Iniciando pings de autodespertar cada 5 min hacia: ${renderUrl}`);
   setInterval(async () => {
     try {

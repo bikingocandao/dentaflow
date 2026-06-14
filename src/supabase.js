@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════
-// SUPABASE CLIENT — DENTAFLOW
+// SUPABASE CLIENT — Clinic Full
 // Persistencia en la nube para todos los datos
 // ═══════════════════════════════════════════════
 
