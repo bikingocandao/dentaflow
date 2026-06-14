@@ -2016,9 +2016,12 @@
       </div>
     </div>
 
-    <div style="margin-top:14px; background:var(--bg-secondary); border:0.5px solid var(--border); border-radius:12px; padding:12px;">
-      <span style="font-size:10px; color:var(--text-tertiary); font-weight:600; display:block; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Vista previa del mensaje (WhatsApp)</span>
-      <div id="reminder-preview" style="font-size:12px; color:var(--text-secondary); white-space:pre-wrap; font-family:monospace; line-height:1.4;"></div>
+    <div style="margin-top:14px; background:var(--bg-secondary); border:0.5px solid var(--border); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:6px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:10px; color:var(--text-tertiary); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Mensaje de WhatsApp (Editable)</span>
+        <span style="font-size:9px; color:var(--blue-mid); font-weight:500;">Puedes editar este texto antes de enviar</span>
+      </div>
+      <textarea id="reminder-preview" class="form-input" style="font-size:12px; color:var(--text-secondary); white-space:pre-wrap; font-family:monospace; line-height:1.4; width:100%; height:120px; resize:vertical; background:var(--bg-primary); border:0.5px solid var(--border); border-radius:8px; padding:8px; outline:none; transition:border-color 0.2s;" placeholder="Escribe el mensaje aquí..."></textarea>
     </div>
 
     <div class="modal-footer" style="margin-top:16px;">
@@ -3319,7 +3322,7 @@ function updateReminderPreview() {
     preview = `Hola, ${apt.nombre} 👋\nLe escribimos de ${bizName} para saludarle y recordarle su consulta de seguimiento. Ha pasado el tiempo establecido (${tLabel}) para su: *${motive}*.\n\nEscríbanos por aquí para agendar su próxima cita. ¡Le esperamos! 😊`;
   }
   
-  document.getElementById('reminder-preview').textContent = preview;
+  document.getElementById('reminder-preview').value = preview;
 }
 
 async function submitReminder() {
@@ -3328,6 +3331,7 @@ async function submitReminder() {
   const timeframe = document.getElementById('remind-timeframe').value;
   const customDate = document.getElementById('remind-custom-date').value;
   const motive = document.getElementById('remind-motive').value;
+  const message = document.getElementById('reminder-preview').value;
 
   const btn = document.getElementById('btn-submit-reminder');
   const originalHtml = btn.innerHTML;
@@ -3344,7 +3348,8 @@ async function submitReminder() {
         type: type,
         timeframe: timeframe,
         motive: motive,
-        customDate: customDate
+        customDate: customDate,
+        message: message
       })
     });
     

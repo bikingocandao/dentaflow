@@ -337,7 +337,7 @@ app.post('/api/appointments/:id/notes', (req, res) => {
 // Enviar recordatorio manual por WhatsApp
 app.post('/api/appointments/:id/remind', async (req, res) => {
   try {
-    const { type, timeframe, motive, customDate } = req.body || {};
+    const { type, timeframe, motive, customDate, message } = req.body || {};
     const apt = conversations.getAppointments().find(a => a.id === req.params.id);
     if (!apt) return res.status(404).json({ error: 'Cita no encontrada' });
 
@@ -407,6 +407,7 @@ app.post('/api/appointments/:id/remind', async (req, res) => {
         sendAt: sendAtStr,
         timeframe: timeframe === 'custom' ? `Fecha: ${customDate}` : timeframe,
         motive: motive || 'Consulta general',
+        customMessage: message,
         sent: false
       };
 
@@ -420,7 +421,9 @@ app.post('/api/appointments/:id/remind', async (req, res) => {
     
     // Construir el mensaje segun la acción
     let msg = '';
-    if (type === 'now_return') {
+    if (message) {
+      msg = message;
+    } else if (type === 'now_return') {
       msg = `Hola, ${apt.nombre} 👋\nLe escribimos de ${bizName} para recordarle la importancia de realizar su próxima consulta de seguimiento en **${timeframe}** para su: **${motive || 'Consulta general'}**.\n\nEscríbanos por aquí para coordinar y agendar su cita. ¡Que tenga un excelente día! 😊`;
     } else {
       // Estándar (original)

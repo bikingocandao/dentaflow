@@ -412,7 +412,7 @@ async function sendReminders() {
       } catch (cfgErr) {}
 
       const r = apt.scheduledReminder;
-      const msg = `Hola, ${apt.nombre} 👋\nLe escribimos de ${bizName} para saludarle y recordarle su consulta de seguimiento. Ha pasado el tiempo establecido (${r.timeframe}) para su: **${r.motive || 'Consulta general'}**.\n\nEscríbanos por aquí para agendar su próxima cita. ¡Le esperamos! 😊`;
+      const msg = r.customMessage || `Hola, ${apt.nombre} 👋\nLe escribimos de ${bizName} para saludarle y recordarle su consulta de seguimiento. Ha pasado el tiempo establecido (${r.timeframe}) para su: **${r.motive || 'Consulta general'}**.\n\nEscríbanos por aquí para agendar su próxima cita. ¡Le esperamos! 😊`;
 
       try {
         await sendMessage(apt.jid, msg);
