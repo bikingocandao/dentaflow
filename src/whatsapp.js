@@ -25,6 +25,14 @@ let qrAttempts = 0;
 let qrGeneratedAt = null; // timestamp del último QR
 const MAX_QR_ATTEMPTS = 5; // Intentos antes de parar (cada uno dura ~60s)
 
+// Watchdog de conexión: Revisa cada 60s si está desconectado y sin reintento activo
+setInterval(() => {
+  if (connectionStatus === 'disconnected' && !reconnectTimer) {
+    console.log('🛡️ [Watchdog] WhatsApp desconectado detectado. Forzando reconexión automática...');
+    connectWhatsApp();
+  }
+}, 60000);
+
 function setSocketIO(socketIO) {
   io = socketIO;
 }

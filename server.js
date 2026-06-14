@@ -1196,6 +1196,18 @@ async function start() {
   console.log('📱 Conectando WhatsApp...');
   await connectWhatsApp();
 
+  // Sistema de Autodespertar (Keep-Alive) para mantener Render activo 24/7
+  const renderUrl = process.env.RENDER_EXTERNAL_URL || 'https://dentaflow-tlqb.onrender.com';
+  console.log(`📡 [Keep-Alive] Iniciando pings de autodespertar cada 5 min hacia: ${renderUrl}`);
+  setInterval(async () => {
+    try {
+      const res = await fetch(`${renderUrl}/api/server-info`);
+      console.log(`📡 [Keep-Alive] Auto-ping exitoso a ${renderUrl}. Status: ${res.status}`);
+    } catch (e) {
+      console.error('❌ [Keep-Alive] Error en auto-ping:', e.message);
+    }
+  }, 300000); // 5 minutos
+
   // 6. Programar recordatorios (cada hora)
   setInterval(async () => {
     try {
