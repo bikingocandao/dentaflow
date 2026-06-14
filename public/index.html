@@ -183,6 +183,14 @@
   .qr-box { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 24px; text-align: center; min-width: 200px; }
   #qr-display { width: 180px; height: 180px; background: white; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; overflow: hidden; }
   #qr-display img { width: 100%; height: 100%; object-fit: contain; }
+  /* QR WhatsApp live indicator */
+  @keyframes qr-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.95)} }
+  @keyframes qr-fade-in { from{opacity:0;transform:scale(0.97)} to{opacity:1;transform:scale(1)} }
+  @keyframes dot-blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .qr-live-dot { width:7px;height:7px;border-radius:50%;background:#25D366;display:inline-block;margin-right:5px;animation:dot-blink 1.5s ease-in-out infinite; }
+  #qr-image-wa { animation: qr-fade-in 0.4s ease; }
+  .qr-refresh-bar { height:2px;background:var(--border);border-radius:1px;overflow:hidden;margin-top:8px; }
+  .qr-refresh-bar-inner { height:100%;background:#25D366;border-radius:1px;transition:width 0.1s linear; }
 
   /* WHATSAPP CHAT PANEL */
   .chat-panel { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; height: calc(100vh - 320px); min-height: 400px; display: flex; flex-direction: column; }
@@ -1338,8 +1346,18 @@
             Generando código QR...
           </div>
           <div id="qr-img-wa" style="display:none">
-            <img id="qr-image-wa" src="" alt="QR WhatsApp" style="width:220px;height:220px;background:white;padding:8px;border-radius:8px;display:block;margin:0 auto 10px">
-            <p style="font-size:12px;color:var(--text-secondary)">Escanea con WhatsApp → Dispositivos vinculados</p>
+            <div style="position:relative;display:inline-block">
+              <img id="qr-image-wa" src="" alt="QR WhatsApp" style="width:220px;height:220px;background:white;padding:8px;border-radius:8px;display:block;margin:0 auto 10px;box-shadow:0 4px 24px rgba(37,211,102,0.15);border:2px solid rgba(37,211,102,0.3);">
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:6px">
+              <span class="qr-live-dot"></span>
+              <span style="font-size:11px;font-weight:600;color:#25D366">QR activo — se renueva automáticamente</span>
+            </div>
+            <p style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">Escanea con WhatsApp → Dispositivos vinculados</p>
+            <div class="qr-refresh-bar">
+              <div class="qr-refresh-bar-inner" id="qr-countdown-bar" style="width:100%"></div>
+            </div>
+            <p style="font-size:10px;color:var(--text-tertiary);margin-top:4px">Verificando nuevo QR cada 3 segundos...</p>
           </div>
         </div>
         <div id="wa-chat-panel" class="chat-panel" style="display:none">
@@ -2685,7 +2703,23 @@ function showQR(qrDataUrl) {
   const imgEl = document.getElementById('qr-image-wa');
   if(loadingWa) loadingWa.style.display = 'none';
   if(imgWa) imgWa.style.display = 'block';
-  if(imgEl) imgEl.src = qrDataUrl;
+  if (imgEl) {
+    // Fade animation on update
+    imgEl.style.animation = 'none';
+    void imgEl.offsetWidth; // reflow
+    imgEl.style.animation = 'qr-fade-in 0.4s ease';
+    imgEl.src = qrDataUrl;
+  }
+  // Animate the countdown bar
+  const bar = document.getElementById('qr-countdown-bar');
+  if (bar) {
+    bar.style.transition = 'none';
+    bar.style.width = '100%';
+    setTimeout(() => {
+      bar.style.transition = 'width 3s linear';
+      bar.style.width = '0%';
+    }, 50);
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -5245,21 +5279,26 @@ function startIntervals() {
     if (currentSession) fetchInventory();
   }, 60000));
 
+  let _lastQrData = null;
   refreshTimers.push(setInterval(async () => {
     if (!currentSession) return;
     try {
       const res = await fetch('/api/status');
       const data = await res.json();
-      if(data.qr) { 
-        showQR(data.qr); 
-        updateWAStatus('qr'); 
-      } else if(data.whatsapp === 'connected') { 
-        updateWAStatus('connected'); 
+      if(data.qr) {
+        updateWAStatus('qr');
+        if (data.qr !== _lastQrData) {
+          _lastQrData = data.qr;
+          showQR(data.qr);
+        }
+      } else if(data.whatsapp === 'connected') {
+        _lastQrData = null;
+        updateWAStatus('connected');
       } else {
         updateWAStatus(data.whatsapp || 'disconnected');
       }
     } catch(e) {}
-  }, 2000));
+  }, 3000));
 }
 
 function stopIntervals() {
