@@ -2196,45 +2196,110 @@
 
 <!-- MODAL INFO PLANES -->
 <div class="modal-overlay" id="modal-info-planes">
-  <div class="modal" style="max-width:550px">
-    <div class="modal-title"><span>Información de Membresías y Planes</span><button class="abtn" onclick="closeModal('modal-info-planes')"><i class="ti ti-x"></i></button></div>
-    <div style="max-height: 400px; overflow-y: auto; padding-right: 8px;">
-      <div style="font-size:13px; color:var(--text-secondary); margin-bottom:15px; line-height: 1.5; text-align: left;">
-        El sistema está diseñado para adaptarse a clínicas de cualquier ámbito (dental, medicina estética, veterinaria, psicología, fisioterapia, etc.). La IA adapta sus respuestas automáticamente según los servicios configurados.
+  <div class="modal" style="max-width:680px">
+    <div class="modal-title"><span>Información Detallada de Membresías y Planes</span><button class="abtn" onclick="closeModal('modal-info-planes')"><i class="ti ti-x"></i></button></div>
+    <div style="max-height: 480px; overflow-y: auto; padding-right: 8px;">
+      <div style="font-size:12px; color:var(--text-secondary); margin-bottom:15px; line-height: 1.5; text-align: left; background: var(--bg-secondary); padding: 10px; border-radius: 8px; border: 0.5px solid var(--border);">
+        ℹ️ <strong>Adaptabilidad total:</strong> Este sistema está diseñado para conectarse a cualquier tipo de clínica (dental, medicina estética, veterinaria, psicología, etc.). La inteligencia artificial aprende de forma dinámica de los servicios y horarios de tu negocio.
       </div>
       
-      <div class="chart-card" style="margin-bottom:12px; border-left: 4px solid var(--text-secondary); padding: 12px; text-align: left;">
-        <div style="font-weight:700; color:var(--text-primary); font-size:14px; margin-bottom:6px">📋 Plan Básico — US$150/mes</div>
-        <ul style="margin: 0; padding-left: 20px; font-size:12px; color:var(--text-secondary); line-height:1.6">
-          <li>Respuesta automática de bienvenida 24/7.</li>
-          <li>Envío de menú de servicios y precios actualizados.</li>
-          <li>Información dinámica de horarios, ubicación y redes sociales.</li>
-          <li>Transferencia a agente humano en caso de dudas no respondidas.</li>
-          <li>Respuestas inteligentes a preguntas frecuentes (FAQs).</li>
-          <li>❌ No permite agendamiento automático de citas.</li>
-        </ul>
+      <!-- PLAN BASICO -->
+      <div class="chart-card" style="margin-bottom:16px; border-left: 4px solid var(--text-secondary); padding: 14px; text-align: left;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-weight:700; color:var(--text-primary); font-size:15px;">📋 Plan Básico</span>
+          <span style="font-size:12px; font-weight:700; padding:3px 10px; border-radius:20px; background:var(--bg-secondary); color:var(--text-secondary);">US$150 / mes</span>
+        </div>
+        
+        <div style="font-size:12px; color:var(--text-secondary); margin-bottom:10px; line-height:1.4">
+          <strong>Ideal para:</strong> Clínicas que solo quieren automatizar la atención inicial y preguntas repetitivas (horarios, ubicación, precios) sin delegar el agendamiento a la IA.
+        </div>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:8px;">
+          <!-- Pros -->
+          <div style="background: rgba(16, 185, 129, 0.05); padding: 10px; border-radius: 8px; border: 0.5px solid rgba(16, 185, 129, 0.2);">
+            <div style="font-size:11px; font-weight:700; color:#10b981; margin-bottom:6px; display:flex; align-items:center; gap:4px;">✅ Beneficios / Ventajas</div>
+            <ul style="margin: 0; padding-left: 14px; font-size:11px; color:var(--text-secondary); line-height:1.5">
+              <li>Respuestas inmediatas 24/7 sobre ubicación, horarios y preguntas frecuentes.</li>
+              <li>Filtro inicial de chats: la secretaria solo atiende clientes calificados.</li>
+              <li>Ahorro en personal de atención al cliente.</li>
+            </ul>
+          </div>
+          <!-- Cons -->
+          <div style="background: rgba(239, 68, 68, 0.05); padding: 10px; border-radius: 8px; border: 0.5px solid rgba(239, 68, 68, 0.2);">
+            <div style="font-size:11px; font-weight:700; color:#ef4444; margin-bottom:6px; display:flex; align-items:center; gap:4px;">⚠️ Limitaciones / Desventajas</div>
+            <ul style="margin: 0; padding-left: 14px; font-size:11px; color:var(--text-secondary); line-height:1.5">
+              <li>La IA <strong>no puede</strong> agendar citas en el calendario.</li>
+              <li>Requiere que una secretaria intervenga manualmente para agendar la cita.</li>
+              <li>No tiene recordatorios automáticos de citas.</li>
+            </ul>
+          </div>
+        </div>
       </div>
 
-      <div class="chart-card" style="margin-bottom:12px; border-left: 4px solid var(--blue-text); padding: 12px; text-align: left;">
-        <div style="font-weight:700; color:var(--blue-text); font-size:14px; margin-bottom:6px">📅 Plan Estándar — US$250/mes</div>
-        <ul style="margin: 0; padding-left: 20px; font-size:12px; color:var(--text-secondary); line-height:1.6">
-          <li><strong>Todo lo del Plan Básico.</strong></li>
-          <li>Agendamiento de citas 100% automatizado por WhatsApp.</li>
-          <li>Verificación y asignación automática de horarios disponibles.</li>
-          <li>Recordatorios automáticos de citas enviados 24 horas antes.</li>
-          <li>Gestión de confirmaciones, cambios o cancelaciones por chat.</li>
-        </ul>
+      <!-- PLAN ESTANDAR -->
+      <div class="chart-card" style="margin-bottom:16px; border-left: 4px solid var(--blue-text); padding: 14px; text-align: left;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-weight:700; color:var(--blue-text); font-size:15px;">📅 Plan Estándar</span>
+          <span style="font-size:12px; font-weight:700; padding:3px 10px; border-radius:20px; background:var(--blue-bg); color:var(--blue-text);">US$250 / mes</span>
+        </div>
+        
+        <div style="font-size:12px; color:var(--text-secondary); margin-bottom:10px; line-height:1.4">
+          <strong>Ideal para:</strong> Negocios que buscan automatizar el agendamiento completo y reducir inasistencias sin necesidad de un seguimiento de venta agresivo.
+        </div>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:8px;">
+          <!-- Pros -->
+          <div style="background: rgba(16, 185, 129, 0.05); padding: 10px; border-radius: 8px; border: 0.5px solid rgba(16, 185, 129, 0.2);">
+            <div style="font-size:11px; font-weight:700; color:#10b981; margin-bottom:6px; display:flex; align-items:center; gap:4px;">✅ Beneficios / Ventajas</div>
+            <ul style="margin: 0; padding-left: 14px; font-size:11px; color:var(--text-secondary); line-height:1.5">
+              <li>Agendamiento de citas 100% automático por WhatsApp sin intervención humana.</li>
+              <li>Recordatorios automáticos 24h antes por WhatsApp (reduce el ausentismo un 70%).</li>
+              <li>Gestión de cambios y cancelaciones por chat.</li>
+            </ul>
+          </div>
+          <!-- Cons -->
+          <div style="background: rgba(245, 158, 11, 0.05); padding: 10px; border-radius: 8px; border: 0.5px solid rgba(245, 158, 11, 0.2);">
+            <div style="font-size:11px; font-weight:700; color:#f59e0b; margin-bottom:6px; display:flex; align-items:center; gap:4px;">⚠️ Limitaciones / Desventajas</div>
+            <ul style="margin: 0; padding-left: 14px; font-size:11px; color:var(--text-secondary); line-height:1.5">
+              <li>No hace seguimiento a pacientes indecisos (leads fríos).</li>
+              <li>No reconoce a pacientes recurrentes por su nombre de forma personalizada.</li>
+              <li>No gestiona promociones o quejas de forma autónoma.</li>
+            </ul>
+          </div>
+        </div>
       </div>
 
-      <div class="chart-card" style="margin-bottom:12px; border-left: 4px solid #10b981; padding: 12px; text-align: left;">
-        <div style="font-weight:700; color: #10b981; font-size:14px; margin-bottom:6px">🧠 Plan Completo — US$400/mes</div>
-        <ul style="margin: 0; padding-left: 20px; font-size:12px; color:var(--text-secondary); line-height:1.6">
-          <li><strong>Todo lo del Plan Estándar.</strong></li>
-          <li>Reconocimiento personalizado de pacientes recurrentes por su nombre.</li>
-          <li>Seguimiento automatizado de leads (escribe a pacientes que no terminaron de agendar).</li>
-          <li>Manejo avanzado de quejas y escalamiento automatizado de casos especiales.</li>
-          <li>Gestión de descuentos, promociones, referidos y servicios no disponibles.</li>
-        </ul>
+      <!-- PLAN COMPLETO -->
+      <div class="chart-card" style="margin-bottom:16px; border-left: 4px solid #10b981; padding: 14px; text-align: left;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-weight:700; color:#10b981; font-size:15px;">🧠 Plan Completo</span>
+          <span style="font-size:12px; font-weight:700; padding:3px 10px; border-radius:20px; background:rgba(16, 185, 129, 0.1); color:#10b981;">US$400 / mes</span>
+        </div>
+        
+        <div style="font-size:12px; color:var(--text-secondary); margin-bottom:10px; line-height:1.4">
+          <strong>Ideal para:</strong> Clínicas consolidadas que quieren un asistente virtual premium capaz de vender de forma activa, recuperar clientes perdidos y fidelizar.
+        </div>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:8px;">
+          <!-- Pros -->
+          <div style="background: rgba(16, 185, 129, 0.05); padding: 10px; border-radius: 8px; border: 0.5px solid rgba(16, 185, 129, 0.2);">
+            <div style="font-size:11px; font-weight:700; color:#10b981; margin-bottom:6px; display:flex; align-items:center; gap:4px;">✅ Beneficios / Ventajas</div>
+            <ul style="margin: 0; padding-left: 14px; font-size:11px; color:var(--text-secondary); line-height:1.5">
+              <li><strong>Recuperación de Leads:</strong> Si el paciente no termina de agendar, la IA le escribe para reactivarlo.</li>
+              <li>Reconocimiento personalizado de pacientes recurrentes por nombre.</li>
+              <li>Gestión de quejas, derivaciones a urgencias, descuentos y referidos.</li>
+              <li>Mayor tasa de conversión de visitas a citas reales.</li>
+            </ul>
+          </div>
+          <!-- Cons -->
+          <div style="background: rgba(239, 68, 68, 0.05); padding: 10px; border-radius: 8px; border: 0.5px solid rgba(239, 68, 68, 0.2);">
+            <div style="font-size:11px; font-weight:700; color:#ef4444; margin-bottom:6px; display:flex; align-items:center; gap:4px;">⚠️ Limitaciones / Desventajas</div>
+            <ul style="margin: 0; padding-left: 14px; font-size:11px; color:var(--text-secondary); line-height:1.5">
+              <li>Tiene una inversión mensual mayor (se amortiza rápidamente).</li>
+              <li>Requiere que la base de datos de pacientes esté limpia para que la IA los salude de forma personalizada.</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
     <div class="modal-footer"><button class="btn btn-primary" onclick="closeModal('modal-info-planes')">Entendido</button></div>
