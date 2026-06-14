@@ -11,7 +11,7 @@ const path = require('path');
 const os = require('os');
 
 const { initAI } = require('./src/ai');
-const { connectWhatsApp, setSocketIO, getStatus, getQR, sendReminders, sendMessage } = require('./src/whatsapp');
+const { connectWhatsApp, setSocketIO, getStatus, getQR, getQRAge, forceNewQR, sendReminders, sendMessage } = require('./src/whatsapp');
 const conversations = require('./src/conversations');
 const { loadConfig, saveConfig } = require('./src/prompts');
 const { createClient, getClientsList, getClientLiveStatus } = require('./src/clients');
@@ -244,6 +244,25 @@ app.get('/api/qr', (req, res) => {
   const qr = getQR();
   if (!qr) return res.status(404).json({ error: 'No QR disponible' });
   res.json({ qr });
+});
+
+// Edad del QR en segundos
+app.get('/api/qr/age', (req, res) => {
+  const age = getQRAge();
+  res.json({ ageSeconds: age, status: getStatus() });
+});
+
+// Forzar nuevo QR (frontend lo llama cuando el QR está a punto de expirar)
+app.post('/api/qr/refresh', async (req, res) => {
+  try {
+    if (getStatus() === 'connected') {
+      return res.json({ success: false, message: 'Ya conectado, no se necesita QR' });
+    }
+    await forceNewQR();
+    res.json({ success: true, message: 'Generando nuevo QR...' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // Estadísticas

@@ -1347,17 +1347,22 @@
           </div>
           <div id="qr-img-wa" style="display:none">
             <div style="position:relative;display:inline-block">
-              <img id="qr-image-wa" src="" alt="QR WhatsApp" style="width:220px;height:220px;background:white;padding:8px;border-radius:8px;display:block;margin:0 auto 10px;box-shadow:0 4px 24px rgba(37,211,102,0.15);border:2px solid rgba(37,211,102,0.3);">
+              <img id="qr-image-wa" src="" alt="QR WhatsApp" style="width:220px;height:220px;background:white;padding:8px;border-radius:8px;display:block;margin:0 auto 10px;box-shadow:0 4px 24px rgba(37,211,102,0.15);border:2px solid rgba(37,211,102,0.3);transition:border-color 0.3s,box-shadow 0.3s;" id="qr-image-wa">
             </div>
             <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:6px">
-              <span class="qr-live-dot"></span>
-              <span style="font-size:11px;font-weight:600;color:#25D366">QR activo — se renueva automáticamente</span>
+              <span class="qr-live-dot" id="qr-live-dot"></span>
+              <span style="font-size:11px;font-weight:600;color:#25D366" id="qr-status-text">QR activo — ¡escanea ahora con WhatsApp!</span>
             </div>
-            <p style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">Escanea con WhatsApp → Dispositivos vinculados</p>
-            <div class="qr-refresh-bar">
+            <p style="font-size:12px;color:var(--text-secondary);margin-bottom:6px">WhatsApp → Menú → Dispositivos vinculados → Vincular dispositivo</p>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;justify-content:center">
+              <span style="font-size:11px;color:var(--text-tertiary)">Válido por:</span>
+              <span id="qr-timer-text" style="font-size:22px;font-weight:700;color:#25D366;font-variant-numeric:tabular-nums;min-width:36px;display:inline-block;text-align:center">20</span>
+              <span style="font-size:11px;color:var(--text-tertiary)">seg</span>
+            </div>
+            <div class="qr-refresh-bar" style="margin-bottom:6px">
               <div class="qr-refresh-bar-inner" id="qr-countdown-bar" style="width:100%"></div>
             </div>
-            <p style="font-size:10px;color:var(--text-tertiary);margin-top:4px">Verificando nuevo QR cada 3 segundos...</p>
+            <p style="font-size:10px;color:var(--text-tertiary);margin-top:2px" id="qr-auto-refresh-text">↻ Se genera nuevo QR automáticamente</p>
           </div>
         </div>
         <div id="wa-chat-panel" class="chat-panel" style="display:none">
@@ -2695,6 +2700,9 @@ function updateWAStatus(status) {
   }
 }
 
+let _qrCountdownInterval = null;
+const QR_LIFETIME_SECS = 20; // WhatsApp QRs expire ~every 20s
+
 function showQR(qrDataUrl) {
   const qrDisplay = document.getElementById('qr-display');
   if(qrDisplay) { qrDisplay.innerHTML = `<img src="${qrDataUrl}" alt="QR" style="width:100%;height:100%;object-fit:contain">`; }
@@ -2704,22 +2712,74 @@ function showQR(qrDataUrl) {
   if(loadingWa) loadingWa.style.display = 'none';
   if(imgWa) imgWa.style.display = 'block';
   if (imgEl) {
-    // Fade animation on update
     imgEl.style.animation = 'none';
-    void imgEl.offsetWidth; // reflow
+    void imgEl.offsetWidth;
     imgEl.style.animation = 'qr-fade-in 0.4s ease';
     imgEl.src = qrDataUrl;
+    // Reset to green border
+    imgEl.style.border = '2px solid rgba(37,211,102,0.3)';
+    imgEl.style.boxShadow = '0 4px 24px rgba(37,211,102,0.15)';
   }
-  // Animate the countdown bar
+  // Start real countdown
+  _startQRCountdown();
+}
+
+function _startQRCountdown() {
+  // Clear any existing countdown
+  if (_qrCountdownInterval) clearInterval(_qrCountdownInterval);
+  
+  let secsLeft = QR_LIFETIME_SECS;
   const bar = document.getElementById('qr-countdown-bar');
-  if (bar) {
-    bar.style.transition = 'none';
-    bar.style.width = '100%';
-    setTimeout(() => {
-      bar.style.transition = 'width 3s linear';
-      bar.style.width = '0%';
-    }, 50);
+  const timerText = document.getElementById('qr-timer-text');
+  const imgEl = document.getElementById('qr-image-wa');
+  const statusText = document.getElementById('qr-status-text');
+  const dot = document.getElementById('qr-live-dot');
+  const autoText = document.getElementById('qr-auto-refresh-text');
+
+  function _updateBar() {
+    const pct = (secsLeft / QR_LIFETIME_SECS) * 100;
+    if (bar) bar.style.width = pct + '%';
+    if (timerText) {
+      timerText.textContent = secsLeft;
+      if (secsLeft <= 5) {
+        timerText.style.color = '#ef4444';
+        if (bar) bar.style.background = '#ef4444';
+        if (imgEl) {
+          imgEl.style.border = '2px solid rgba(239,68,68,0.5)';
+          imgEl.style.boxShadow = '0 4px 24px rgba(239,68,68,0.2)';
+        }
+        if (statusText) { statusText.style.color='#ef4444'; statusText.textContent='⚠️ QR expira pronto — generando nuevo...'; }
+        if (dot) dot.style.background = '#ef4444';
+      } else if (secsLeft <= 10) {
+        timerText.style.color = '#f59e0b';
+        if (bar) bar.style.background = '#f59e0b';
+        if (statusText) { statusText.style.color='#f59e0b'; statusText.textContent='⏳ Escanea ahora antes de que expire!'; }
+      } else {
+        timerText.style.color = '#25D366';
+        if (bar) bar.style.background = '#25D366';
+        if (imgEl) { imgEl.style.border='2px solid rgba(37,211,102,0.3)'; imgEl.style.boxShadow='0 4px 24px rgba(37,211,102,0.15)'; }
+        if (statusText) { statusText.style.color='#25D366'; statusText.textContent='QR activo — ¡escanea ahora con WhatsApp!'; }
+        if (dot) dot.style.background = '#25D366';
+      }
+    }
   }
+
+  _updateBar();
+  _qrCountdownInterval = setInterval(() => {
+    secsLeft--;
+    _updateBar();
+    if (secsLeft <= 0) {
+      clearInterval(_qrCountdownInterval);
+      _qrCountdownInterval = null;
+      // Force new QR from backend
+      if (autoText) autoText.textContent = '↻ Solicitando QR fresco...';
+      const loadingWa = document.getElementById('qr-loading-wa');
+      const imgWa = document.getElementById('qr-img-wa');
+      if (imgWa) imgWa.style.display = 'none';
+      if (loadingWa) { loadingWa.style.display = 'block'; loadingWa.innerHTML = '<div class="spinner" style="margin:0 auto 12px"></div>Generando QR fresco...'; }
+      fetch('/api/qr/refresh', { method: 'POST' }).catch(() => {});
+    }
+  }, 1000);
 }
 
 // ═══════════════════════════════════════════

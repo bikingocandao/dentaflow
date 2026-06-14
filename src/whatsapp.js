@@ -22,6 +22,7 @@ let io = null;
 // Control de reconexión
 let reconnectTimer = null;
 let qrAttempts = 0;
+let qrGeneratedAt = null; // timestamp del último QR
 const MAX_QR_ATTEMPTS = 5; // Intentos antes de parar (cada uno dura ~60s)
 
 function setSocketIO(socketIO) {
@@ -34,6 +35,31 @@ function getStatus() {
 
 function getQR() {
   return qrDataUrl;
+}
+
+function getQRAge() {
+  if (!qrGeneratedAt) return null;
+  return Math.floor((Date.now() - qrGeneratedAt) / 1000); // seconds
+}
+
+async function forceNewQR() {
+  console.log('🔄 [QR] Forzando generación de QR nuevo...');
+  // Cerrar socket actual sin marcar como logged out
+  if (sock) {
+    try { sock.end(); } catch(e) {}
+    sock = null;
+  }
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
+  qrDataUrl = null;
+  qrGeneratedAt = null;
+  qrAttempts = 0;
+  connectionStatus = 'disconnected';
+  emitToAll('status', 'disconnected');
+  // Reconectar para generar QR nuevo
+  reconnectTimer = setTimeout(connectWhatsApp, 500);
 }
 
 function emitToAll(event, data) {
@@ -82,6 +108,7 @@ async function connectWhatsApp() {
           color: { dark: '#000000', light: '#FFFFFF' },
           errorCorrectionLevel: 'M'
         });
+        qrGeneratedAt = Date.now(); // ← guardar timestamp
         connectionStatus = 'qr';
         console.log(`📱 QR Code generado (intento ${qrAttempts}/${MAX_QR_ATTEMPTS}) — Escanea con WhatsApp`);
         emitToAll('qr', qrDataUrl);
@@ -429,4 +456,4 @@ async function sendReminders() {
   }
 }
 
-module.exports = { connectWhatsApp, setSocketIO, getStatus, getQR, sendReminders, sendMessage };
+module.exports = { connectWhatsApp, setSocketIO, getStatus, getQR, getQRAge, forceNewQR, sendReminders, sendMessage };
