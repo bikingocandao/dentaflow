@@ -40,7 +40,7 @@ async function saveAppointment(apt) {
   const sb = getSupabase();
   if (!sb) return null;
   try {
-    const { data, error } = await sb.from('appointments').upsert({
+    const { error } = await sb.from('appointments').upsert({
       id: apt.id,
       nombre: apt.nombre,
       telefono: apt.telefono,
@@ -54,8 +54,8 @@ async function saveAppointment(apt) {
       scheduled_reminder: apt.scheduledReminder || null,
       updated_at: new Date().toISOString()
     }, { onConflict: 'id' });
-    if (error) console.error('[Supabase] saveAppointment error:', error.message);
-    return data;
+    if (error) { console.error('[Supabase] saveAppointment error:', error.message); return null; }
+    return true; // upsert success (Supabase v2 returns null data without .select())
   } catch (e) {
     console.error('[Supabase] saveAppointment exception:', e.message);
     return null;
@@ -103,7 +103,7 @@ async function saveInventoryItem(item) {
   const sb = getSupabase();
   if (!sb) return null;
   try {
-    const { data, error } = await sb.from('inventory').upsert({
+    const { error } = await sb.from('inventory').upsert({
       id: item.id,
       nombre: item.nombre,
       categoria: item.categoria,
@@ -115,8 +115,8 @@ async function saveInventoryItem(item) {
       notas: item.notas,
       updated_at: new Date().toISOString()
     }, { onConflict: 'id' });
-    if (error) console.error('[Supabase] saveInventoryItem error:', error.message);
-    return data;
+    if (error) { console.error('[Supabase] saveInventoryItem error:', error.message); return null; }
+    return true;
   } catch (e) {
     console.error('[Supabase] saveInventoryItem exception:', e.message);
     return null;
@@ -162,7 +162,7 @@ async function savePayment(payment) {
   const sb = getSupabase();
   if (!sb) return null;
   try {
-    const { data, error } = await sb.from('payments').upsert({
+    const { error } = await sb.from('payments').upsert({
       id: payment.id,
       patient_name: payment.nombrePaciente || payment.patientName || '',
       patient_jid: payment.patientJid || null,
@@ -173,8 +173,8 @@ async function savePayment(payment) {
       date: payment.fecha || payment.date || '',
       notes: payment.notes || ''
     }, { onConflict: 'id' });
-    if (error) console.error('[Supabase] savePayment error:', error.message);
-    return data;
+    if (error) { console.error('[Supabase] savePayment error:', error.message); return null; }
+    return true;
   } catch (e) {
     console.error('[Supabase] savePayment exception:', e.message);
     return null;
@@ -231,7 +231,7 @@ async function savePatient(patient) {
       prescripcionActiva: patient.prescripcionActiva !== undefined ? patient.prescripcionActiva : treatmentPlan.prescripcionActiva || null
     };
 
-    const { data, error } = await sb.from('patients').upsert({
+    const { error } = await sb.from('patients').upsert({
       id: patient.id,
       nombre: patient.nombre,
       telefono: patient.telefono,
@@ -247,8 +247,8 @@ async function savePatient(patient) {
       compliance: patient.compliance || {},
       updated_at: new Date().toISOString()
     }, { onConflict: 'id' });
-    if (error) console.error('[Supabase] savePatient error:', error.message);
-    return data;
+    if (error) { console.error('[Supabase] savePatient error:', error.message); return null; }
+    return true;
   } catch (e) {
     console.error('[Supabase] savePatient exception:', e.message);
     return null;
@@ -316,14 +316,14 @@ async function saveTemplate(template) {
       rutina: template.rutina || [],
       creadoEn: template.creadoEn || new Date().toISOString()
     };
-    const { data, error } = await sb.from('templates').upsert({
+    const { error } = await sb.from('templates').upsert({
       id: template.id,
       name: template.nombre || 'Plantilla Sin Nombre',
       content: JSON.stringify(contentObj),
       category: template.categoria || 'general'
     }, { onConflict: 'id' });
-    if (error) console.error('[Supabase] saveTemplate error:', error.message);
-    return data;
+    if (error) { console.error('[Supabase] saveTemplate error:', error.message); return null; }
+    return true;
   } catch (e) {
     console.error('[Supabase] saveTemplate exception:', e.message);
     return null;
@@ -376,7 +376,7 @@ async function saveConversation(jid, conv) {
   const sb = getSupabase();
   if (!sb) return null;
   try {
-    const { data, error } = await sb.from('conversations').upsert({
+    const { error } = await sb.from('conversations').upsert({
       jid: jid,
       client_name: conv.clientName,
       messages: conv.messages || [],
@@ -386,8 +386,8 @@ async function saveConversation(jid, conv) {
       },
       last_activity: conv.lastActivity ? new Date(conv.lastActivity).toISOString() : new Date().toISOString()
     }, { onConflict: 'jid' });
-    if (error) console.error('[Supabase] saveConversation error:', error.message);
-    return data;
+    if (error) { console.error('[Supabase] saveConversation error:', error.message); return null; }
+    return true;
   } catch (e) {
     console.error('[Supabase] saveConversation exception:', e.message);
     return null;
