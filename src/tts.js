@@ -52,24 +52,32 @@ async function generateSpeech(text) {
  */
 async function generateGoogleSpeech(text, destPath) {
   try {
-    const lang = process.env.TTS_VOICE_ID || 'es-US';
-    // Usar getAllAudioBase64 para soportar textos largos de más de 200 caracteres
-    const results = await googleTTS.getAllAudioBase64(text, {
-      lang: lang,
-      slow: false,
-      host: 'https://translate.google.com',
-      timeout: 10000,
+    const lang = process.env.TTS_VOICE_ID || 'es';
+    // google-tts-api@0.0.6 devuelve una URL para el audio
+    const audioUrl = await googleTTS(text, lang, 1);
+    
+    // Descargar el audio desde la URL
+    const https = require('https');
+    const http = require('http');
+    const url = new URL(audioUrl);
+    const client = url.protocol === 'https:' ? https : http;
+
+    await new Promise((resolve, reject) => {
+      const fileStream = fs.createWriteStream(destPath);
+      client.get(audioUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (response) => {
+        response.pipe(fileStream);
+        fileStream.on('finish', () => { fileStream.close(); resolve(); });
+      }).on('error', reject);
     });
 
-    const buffer = Buffer.concat(results.map(r => Buffer.from(r.base64, 'base64')));
-    fs.writeFileSync(destPath, buffer);
-    console.log(`✅ Voz de Google generada con éxito (${results.length} fragmento(s)): ${destPath}`);
+    console.log(`✅ Voz de Google generada con éxito: ${destPath}`);
     return destPath;
   } catch (err) {
     console.error('❌ Error en Google TTS:', err.message);
     throw err;
   }
 }
+
 
 /**
  * Genera voz usando OpenAI TTS API
