@@ -177,6 +177,18 @@ app.get('/api/server-info', (req, res) => {
   res.json({ localIp, port: process.env.PORT || 3000 });
 });
 
+// Endpoint temporal de diagnóstico de variables de entorno
+app.get('/api/debug-env', (req, res) => {
+  res.json({
+    adminUsername: process.env.ADMIN_USERNAME || 'not set',
+    adminPasswordSet: !!process.env.ADMIN_PASSWORD,
+    supabaseUrlSet: !!process.env.SUPABASE_URL || !!process.env.SUPABASE_URL_KEY,
+    supabaseKeySet: !!process.env.SUPABASE_KEY || !!process.env.SUPABASE_ANON_KEY || !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    supabaseUrl: process.env.SUPABASE_URL || 'not set'
+  });
+});
+
+
 // Generar QR de la página de registro de pacientes (acceso público)
 app.get('/api/registro-qr', async (req, res) => {
   try {
