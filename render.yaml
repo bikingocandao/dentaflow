@@ -18,8 +18,14 @@ services:
         value: completo
       - key: AI_MODEL
         value: llama-3.3-70b-versatile
+      - key: ADMIN_USERNAME
+        value: carlos luis
+      - key: ADMIN_PASSWORD
+        value: "123456"
+      - key: JWT_SECRET
+        value: dentaflow-secret-key-9988
       - key: GROQ_API_KEY
-        sync: false # Pega tu API key de Groq en el dashboard de Render
+        sync: false # Ya configurada en el dashboard de Render
       - key: OWNER_PHONE
         sync: false # Número del dueño del negocio para notificaciones (ej: 18095551234)
 

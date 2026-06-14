@@ -4,4 +4,4 @@ auth_info/
 logs/
 *.log
 data/conversations/
-public/_redirects
+# public/_redirects  # Needed for Netlify - track in git
