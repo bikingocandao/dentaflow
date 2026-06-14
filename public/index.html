@@ -1653,7 +1653,13 @@
                       <!-- Preview strip (shown when template selected) -->
                       <div id="tpl-preview-strip" style="display:none;padding:0 14px 12px">
                         <div style="background:var(--bg-primary);border:0.5px solid var(--border);border-radius:10px;padding:10px 12px">
-                          <div style="font-size:11px;font-weight:700;color:var(--text-primary);margin-bottom:4px" id="tpl-preview-name">—</div>
+                          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <div style="font-size:11px;font-weight:700;color:var(--text-primary)" id="tpl-preview-name">—</div>
+                            <div style="display:flex; gap:6px;">
+                              <button class="abtn" id="tpl-edit-btn" style="font-size:11px;color:var(--blue-mid);padding:2px 6px;background:none;border:none;cursor:pointer;" title="Editar plantilla"><i class="ti ti-edit"></i></button>
+                              <button class="abtn" id="tpl-delete-btn" style="font-size:11px;color:#ef4444;padding:2px 6px;background:none;border:none;cursor:pointer;" title="Eliminar plantilla"><i class="ti ti-trash"></i></button>
+                            </div>
+                          </div>
                           <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;line-height:1.4" id="tpl-preview-desc">—</div>
                           <div style="display:flex;gap:8px;flex-wrap:wrap">
                             <span id="tpl-preview-meds"  style="font-size:10px;padding:2px 8px;border-radius:20px;background:var(--amber-bg);color:var(--amber-text);font-weight:600">💊 0 meds</span>
@@ -4414,6 +4420,7 @@ let rxDiet = [];     // [{ nombre, alimentos }]
 let rxRoutine = [];  // [{ ejercicio, series, reps, frecuencia }]
 let rxMeds = [];     // [{ nombre, dosis, frecuencia, duracion, notas }]
 let allTemplates = []; // smart templates
+let currentEditingTemplateId = null;
 
 const EXERCISE_SUGGESTIONS = [
   'Sentadillas','Flexiones de pecho','Plancha abdominal','Burpees','Zancadas',
@@ -4694,11 +4701,37 @@ function previewTemplate(id) {
   const diagEl = document.getElementById('tpl-preview-diag');
   if (diagEl) { diagEl.textContent = tpl.diagnostico || ''; diagEl.style.display = tpl.diagnostico ? '' : 'none'; }
 
+  // Set click handlers for Edit and Delete buttons
+  const editBtn = document.getElementById('tpl-edit-btn');
+  const deleteBtn = document.getElementById('tpl-delete-btn');
+  
+  if (editBtn) {
+    editBtn.onclick = () => {
+      rxDiet = tpl.dieta ? [...tpl.dieta] : [];
+      rxRoutine = tpl.rutina ? [...tpl.rutina] : [];
+      rxMeds = tpl.medicamentos ? [...tpl.medicamentos] : [];
+      renderRxDiet();
+      renderRxRoutine();
+      renderRxMeds();
+      
+      currentEditingTemplateId = tpl.id;
+      document.getElementById('tpl-nombre').value = tpl.nombre || '';
+      document.getElementById('tpl-descripcion').value = tpl.descripcion || '';
+      document.getElementById('tpl-diagnostico').value = tpl.diagnostico || '';
+      document.getElementById('modal-save-template').classList.add('open');
+    };
+  }
+  
+  if (deleteBtn) {
+    deleteBtn.onclick = () => deleteTemplateAction(tpl.id);
+  }
+
   strip.style.display = 'block';
   if (applyBtn) applyBtn.disabled = false;
 }
 
 function openSaveTemplateModal() {
+  currentEditingTemplateId = null;
   document.getElementById('tpl-nombre').value = '';
   document.getElementById('tpl-descripcion').value = '';
   document.getElementById('tpl-diagnostico').value = '';
@@ -4716,6 +4749,7 @@ async function saveTemplateAction() {
   }
   
   const payload = {
+    id: currentEditingTemplateId,
     nombre,
     descripcion,
     diagnostico,
@@ -4732,13 +4766,29 @@ async function saveTemplateAction() {
     });
     const data = await res.json();
     if (data.success) {
-      showToast('✅ Plantilla guardada exitosamente');
+      showToast(currentEditingTemplateId ? '✅ Plantilla actualizada exitosamente' : '✅ Plantilla guardada exitosamente');
       closeModal('modal-save-template');
       loadTemplates();
     } else {
       showToast(data.error || 'Error al guardar plantilla', true);
     }
   } catch (e) {
+    showToast('Error de conexión', true);
+  }
+}
+
+async function deleteTemplateAction(id) {
+  if (!confirm('¿Estás seguro de que deseas eliminar esta plantilla de forma permanente?')) return;
+  try {
+    const res = await fetch(`/api/templates/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.success) {
+      showToast('🗑️ Plantilla eliminada');
+      loadTemplates();
+    } else {
+      showToast('Error al eliminar plantilla', true);
+    }
+  } catch(e) {
     showToast('Error de conexión', true);
   }
 }
