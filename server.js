@@ -1167,7 +1167,7 @@ async function start() {
   console.log('');
 
   // 1. Inicializar conversaciones
-  conversations.init();
+  await conversations.init();
 
   // 2. Inicializar IA
   const aiReady = initAI();

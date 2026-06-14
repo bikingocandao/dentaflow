@@ -15,6 +15,7 @@ const PAYMENTS_FILE = path.join(DATA_DIR, 'payments.json');
 const PATIENTS_FILE = path.join(DATA_DIR, 'patients.json');
 const TEMPLATES_FILE = path.join(DATA_DIR, 'templates.json');
 const calendarService = require('./calendar');
+const supabase = require('./supabase');
 
 // Inventario y pagos en memoria
 let inventory = [];
@@ -41,7 +42,7 @@ let stats = {
 };
 
 // ═══ INICIALIZACIÓN ═══
-function init() {
+async function init() {
   // Crear directorios si no existen
   if (!fs.existsSync(CONVERSATIONS_DIR)) {
     fs.mkdirSync(CONVERSATIONS_DIR, { recursive: true });
@@ -318,6 +319,62 @@ function init() {
   // Cargar conversaciones guardadas en disco
   loadConversationsFromDisk();
 
+  // Cargar datos desde Supabase si está disponible
+  try {
+    const conn = await supabase.testConnection();
+    if (conn && conn.connected) {
+      console.log('🔗 [Supabase] Cargando datos iniciales desde la nube...');
+      
+      const sbAppts = await supabase.getAllAppointments();
+      if (sbAppts !== null) {
+        appointments = sbAppts;
+        console.log(`   [Supabase] ${appointments.length} citas cargadas.`);
+      }
+
+      const sbPatients = await supabase.getAllPatients();
+      if (sbPatients !== null) {
+        patients = sbPatients;
+        console.log(`   [Supabase] ${patients.length} pacientes cargados.`);
+      }
+
+      const sbInv = await supabase.getAllInventory();
+      if (sbInv !== null) {
+        inventory = sbInv;
+        console.log(`   [Supabase] ${inventory.length} artículos de inventario cargados.`);
+      }
+
+      const sbPayments = await supabase.getAllPayments();
+      if (sbPayments !== null) {
+        payments = sbPayments;
+        console.log(`   [Supabase] ${payments.length} pagos cargados.`);
+      }
+
+      const sbTemplates = await supabase.getAllTemplates();
+      if (sbTemplates !== null) {
+        templates = sbTemplates;
+        console.log(`   [Supabase] ${templates.length} plantillas cargadas.`);
+      }
+
+      const sbConvs = await supabase.getAllConversations();
+      if (sbConvs !== null) {
+        for (const c of sbConvs) {
+          activeConversations.set(c.jid, {
+            messages: c.messages || [],
+            clientName: c.clientName || null,
+            lastActivity: c.lastActivity || new Date(),
+            startedAt: c.startedAt || new Date(),
+            messageCount: c.messageCount || 0
+          });
+        }
+        console.log(`   [Supabase] ${sbConvs.length} conversaciones cargadas.`);
+      }
+    } else {
+      console.log('⚠️ [Supabase] Sin conexión a la nube, usando almacenamiento local únicamente. Razón:', (conn && conn.error) || 'No configurado');
+    }
+  } catch (sbErr) {
+    console.error('⚠️ [Supabase] Excepción al inicializar conexión:', sbErr.message);
+  }
+
   console.log('✅ Sistema de conversaciones inicializado');
   console.log(`   📊 ${stats.totalMessages} mensajes | ${stats.totalConversations} conversaciones | ${appointments.length} citas | ${patients.length} pacientes`);
 }
@@ -373,8 +430,13 @@ function saveConversationToDisk(jid) {
       messageCount: conv.messageCount
     }, null, 2));
   } catch (e) {
-    console.error('Error guardando conversación:', e.message);
+    console.error('Error guardando conversación local:', e.message);
   }
+
+  // Persistir en Supabase
+  supabase.saveConversation(jid, conv).catch(err => {
+    console.error('[Supabase] Error al guardar conversación:', err.message);
+  });
 }
 
 /**
@@ -494,6 +556,11 @@ function saveAppointment(jid, appointmentData) {
   saveAppointmentsToDisk();
   saveStatsToDisk();
 
+  // Persistir en Supabase
+  supabase.saveAppointment(appointment).catch(err => {
+    console.error('[Supabase] Error al guardar cita:', err.message);
+  });
+
   // 📅 Sincronización en segundo plano con Google Calendar (si está configurado)
   if (calendarService.isConfigured()) {
     calendarService.syncAppointmentToGoogleCalendar(appointment)
@@ -502,6 +569,9 @@ function saveAppointment(jid, appointmentData) {
           appointment.googleEventId = event.id;
           // Volver a guardar para incluir el ID del evento de Google
           saveAppointmentsToDisk();
+          supabase.saveAppointment(appointment).catch(err => {
+            console.error('[Supabase] Error al actualizar cita con Google Event:', err.message);
+          });
         }
       })
       .catch(err => {
@@ -536,6 +606,9 @@ function markReminderSent(appointmentId) {
   if (apt) {
     apt.reminderSent = true;
     saveAppointmentsToDisk();
+    supabase.saveAppointment(apt).catch(err => {
+      console.error('[Supabase] Error al actualizar recordatorio de cita:', err.message);
+    });
   }
 }
 
@@ -560,6 +633,9 @@ function markScheduledReminderSent(appointmentId) {
     apt.scheduledReminder.sent = true;
     apt.scheduledReminder.sentAt = new Date().toISOString();
     saveAppointmentsToDisk();
+    supabase.saveAppointment(apt).catch(err => {
+      console.error('[Supabase] Error al actualizar recordatorio programado de cita:', err.message);
+    });
   }
 }
 
@@ -622,6 +698,11 @@ function updateAppointmentStatus(id, status) {
   apt.status = status;
   apt.updatedAt = new Date().toISOString();
   saveAppointmentsToDisk();
+  
+  supabase.saveAppointment(apt).catch(err => {
+    console.error('[Supabase] Error updating appointment status:', err.message);
+  });
+  
   return apt;
 }
 
@@ -634,6 +715,11 @@ function addAppointmentNotes(id, notes) {
   apt.notes = notes;
   apt.notesUpdatedAt = new Date().toISOString();
   saveAppointmentsToDisk();
+  
+  supabase.saveAppointment(apt).catch(err => {
+    console.error('[Supabase] Error adding appointment notes:', err.message);
+  });
+  
   return apt;
 }
 
@@ -667,6 +753,11 @@ function addManualAppointment(data) {
 
   saveAppointmentsToDisk();
   saveStatsToDisk();
+
+  supabase.saveAppointment(apt).catch(err => {
+    console.error('[Supabase] Error saving manual appointment:', err.message);
+  });
+
   return apt;
 }
 
@@ -680,6 +771,11 @@ function addInventoryItem(data) {
   const item = { id: `INV-${Date.now()}`, ...data, createdAt: new Date().toISOString() };
   inventory.push(item);
   try { fs.writeFileSync(INVENTORY_FILE, JSON.stringify(inventory, null, 2)); } catch (e) {}
+  
+  supabase.saveInventoryItem(item).catch(err => {
+    console.error('[Supabase] Error saving inventory item:', err.message);
+  });
+  
   return item;
 }
 
@@ -688,6 +784,11 @@ function updateInventoryItem(id, data) {
   if (idx === -1) return null;
   inventory[idx] = { ...inventory[idx], ...data, updatedAt: new Date().toISOString() };
   try { fs.writeFileSync(INVENTORY_FILE, JSON.stringify(inventory, null, 2)); } catch (e) {}
+  
+  supabase.saveInventoryItem(inventory[idx]).catch(err => {
+    console.error('[Supabase] Error updating inventory item:', err.message);
+  });
+  
   return inventory[idx];
 }
 
@@ -696,6 +797,11 @@ function deleteInventoryItem(id) {
   if (idx === -1) return false;
   inventory.splice(idx, 1);
   try { fs.writeFileSync(INVENTORY_FILE, JSON.stringify(inventory, null, 2)); } catch (e) {}
+  
+  supabase.deleteInventoryItem(id).catch(err => {
+    console.error('[Supabase] Error deleting inventory item:', err.message);
+  });
+  
   return true;
 }
 
@@ -709,6 +815,11 @@ function addPayment(data) {
   const pay = { id: `PAY-${Date.now()}`, ...data, createdAt: new Date().toISOString() };
   payments.push(pay);
   try { fs.writeFileSync(PAYMENTS_FILE, JSON.stringify(payments, null, 2)); } catch (e) {}
+  
+  supabase.savePayment(pay).catch(err => {
+    console.error('[Supabase] Error saving payment:', err.message);
+  });
+  
   return pay;
 }
 
@@ -718,6 +829,11 @@ function markPaymentPaid(id) {
   pay.estado = 'pagado';
   pay.paidAt = new Date().toISOString();
   try { fs.writeFileSync(PAYMENTS_FILE, JSON.stringify(payments, null, 2)); } catch (e) {}
+  
+  supabase.savePayment(pay).catch(err => {
+    console.error('[Supabase] Error marking payment as paid:', err.message);
+  });
+  
   return pay;
 }
 
@@ -756,6 +872,10 @@ function checkAndCreatePatient(nombre, telefono, jid, correo) {
     } catch (e) {
       console.error('Error guardando nuevo paciente:', e.message);
     }
+    
+    supabase.savePatient(existing).catch(err => {
+      console.error('[Supabase] Error saving auto-created patient:', err.message);
+    });
   } else {
     let changed = false;
     if (correo && !existing.correo) {
@@ -774,6 +894,10 @@ function checkAndCreatePatient(nombre, telefono, jid, correo) {
       try {
         fs.writeFileSync(PATIENTS_FILE, JSON.stringify(patients, null, 2));
       } catch (e) {}
+      
+      supabase.savePatient(existing).catch(err => {
+        console.error('[Supabase] Error updating auto-created patient:', err.message);
+      });
     }
   }
   return existing;
@@ -802,6 +926,11 @@ function addPatient(data) {
   } catch (e) {
     console.error('Error guardando paciente manual:', e.message);
   }
+  
+  supabase.savePatient(newPat).catch(err => {
+    console.error('[Supabase] Error saving manual patient:', err.message);
+  });
+  
   return newPat;
 }
 
@@ -824,6 +953,11 @@ function updatePatient(id, data) {
   } catch (e) {
     console.error('Error actualizando paciente:', e.message);
   }
+  
+  supabase.savePatient(patients[idx]).catch(err => {
+    console.error('[Supabase] Error updating patient:', err.message);
+  });
+  
   return patients[idx];
 }
 
@@ -855,6 +989,11 @@ function saveTemplate(data) {
   } catch (e) {
     console.error('Error guardando plantilla:', e.message);
   }
+  
+  supabase.saveTemplate(newTemplate).catch(err => {
+    console.error('[Supabase] Error saving template:', err.message);
+  });
+  
   return newTemplate;
 }
 
@@ -862,6 +1001,11 @@ function deleteTemplate(id) {
   templates = templates.filter(t => t.id !== id);
   try {
     fs.writeFileSync(TEMPLATES_FILE, JSON.stringify(templates, null, 2));
+    
+    supabase.deleteTemplate(id).catch(err => {
+      console.error('[Supabase] Error deleting template:', err.message);
+    });
+    
     return true;
   } catch (e) {
     console.error('Error eliminando plantilla:', e.message);
