@@ -28,6 +28,11 @@ services:
         sync: false # Ya configurada en el dashboard de Render
       - key: OWNER_PHONE
         sync: false # Número del dueño del negocio para notificaciones (ej: 18095551234)
+      # ─── Base de datos en la nube (Supabase) — guarda citas, pacientes, pagos, etc. ───
+      - key: SUPABASE_URL
+        value: https://zajphxjmohccdkkbkmvk.supabase.co
+      - key: SUPABASE_KEY
+        sync: false # Pega aquí (en el panel de Render) la misma llave del archivo .env
 
     # ⚠️ PERSISTENCIA DE DATOS (OPCIONAL - PLAN DE PAGO)
     #
