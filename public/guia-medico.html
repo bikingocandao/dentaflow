@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Rápida — Clinic Full</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f172a; color: #e2e8f0; padding: 24px; line-height: 1.5; }
+  .sheet { max-width: 720px; margin: 0 auto; background: #fff; color: #0f172a; border-radius: 16px; padding: 32px; box-shadow: 0 10px 40px rgba(0,0,0,.4); }
+  .head { text-align: center; border-bottom: 4px solid #14b8a6; padding-bottom: 16px; margin-bottom: 24px; }
+  .brand { font-size: 30px; font-weight: 900; color: #0f172a; }
+  .brand span { color: #14b8a6; }
+  .sub { font-size: 14px; color: #64748b; margin-top: 4px; letter-spacing: .5px; }
+  h1 { font-size: 20px; text-align: center; color: #0f766e; margin-bottom: 22px; }
+  .step { display: flex; gap: 16px; align-items: flex-start; background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 12px; padding: 16px 18px; margin-bottom: 14px; }
+  .num { flex: 0 0 44px; height: 44px; background: #14b8a6; color: #fff; font-size: 22px; font-weight: 900; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .step h2 { font-size: 17px; color: #0f172a; margin-bottom: 4px; }
+  .step p { font-size: 15px; color: #334155; }
+  .tip { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 12px; padding: 14px 18px; margin-top: 18px; font-size: 14px; color: #92400e; }
+  .foot { text-align: center; font-size: 12px; color: #94a3b8; margin-top: 22px; }
+  @media print { body { background: #fff; padding: 0; } .sheet { box-shadow: none; max-width: 100%; } .noprint { display: none; } }
+  .printbtn { display:block; margin: 0 auto 18px; background:#14b8a6; color:#fff; border:none; padding:12px 22px; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; }
+</style>
+</head>
+<body>
+  <button class="printbtn noprint" onclick="window.print()">🖨️ Imprimir esta guía</button>
+  <div class="sheet">
+    <div class="head">
+      <div class="brand">CLINIC <span>FULL</span></div>
+      <div class="sub">GUÍA RÁPIDA PARA EL MÉDICO</div>
+    </div>
+    <h1>📋 Cómo registrar al paciente con QR (antes de atenderlo)</h1>
+
+    <div class="step">
+      <div class="num">1</div>
+      <div><h2>Abre Clinic Full</h2><p>En la computadora o tablet de recepción, abre la página de Clinic Full e inicia sesión con tu usuario.</p></div>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <div><h2>Muestra el código QR de registro</h2><p>En la pantalla verás el apartado <b>“Registro QR / Registro de Pacientes”</b>. Ahí está el código QR. (También puedes imprimirlo y pegarlo en el mostrador.)</p></div>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <div><h2>El paciente escanea el QR</h2><p>Pídele al paciente que <b>apunte la cámara de su celular</b> al código QR. Se le abrirá la página <b>“Registro de Visita”</b>.</p></div>
+    </div>
+    <div class="step">
+      <div class="num">4</div>
+      <div><h2>El paciente llena sus datos</h2><p>El paciente escribe su <b>Nombre completo</b> y su <b>WhatsApp/Teléfono</b> (y correo si lo pide) y toca <b>“Registrar”</b>.</p></div>
+    </div>
+    <div class="step">
+      <div class="num">5</div>
+      <div><h2>Verifica en tu panel</h2><p>El paciente aparece <b>al instante</b> en tu lista de Clinic Full, con su WhatsApp ya vinculado. ✅</p></div>
+    </div>
+    <div class="step">
+      <div class="num">6</div>
+      <div><h2>Ahora sí, atiende al paciente</h2><p>Abre su ficha en Clinic Full y comienza la consulta. Todo lo que registres queda guardado en la nube.</p></div>
+    </div>
+
+    <div class="tip">💡 <b>Consejo:</b> Imprime el QR una vez y déjalo fijo en recepción. Así cada paciente que llega se registra solo con su celular, sin perder tiempo y sin contacto.</div>
+
+    <div class="foot">Clinic Full · Sistema de gestión clínica en tiempo real</div>
+  </div>
+</body>
+</html>
