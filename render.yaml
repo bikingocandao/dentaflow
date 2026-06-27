@@ -21,7 +21,7 @@ services:
       - key: ADMIN_USERNAME
         value: carlos luis
       - key: ADMIN_PASSWORD
-        value: "123456"
+        value: "1213686"
       - key: JWT_SECRET
         value: dentaflow-secret-key-9988
       - key: GROQ_API_KEY
