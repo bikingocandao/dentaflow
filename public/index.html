@@ -5705,5 +5705,93 @@ initAuth();
   <option value="Colación AM"><option value="Colación PM"><option value="Merienda">
   <option value="Pre-entreno"><option value="Post-entreno">
 </datalist>
+
+<!-- ═══════════════ GUÍA INTERACTIVA FLOTANTE (Clinic Full) ═══════════════ -->
+<style>
+  #cf-guide-btn { position: fixed; right: 18px; bottom: 18px; z-index: 99990; background: #14b8a6; color: #fff;
+    border: none; border-radius: 30px; padding: 12px 18px; font-size: 14px; font-weight: 800; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(20,184,166,.45); display: flex; align-items: center; gap: 8px; }
+  #cf-tour-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 99991; display: none; }
+  #cf-tour-ring { position: absolute; border: 3px solid #14b8a6; border-radius: 12px; box-shadow: 0 0 0 4px rgba(20,184,166,.4), 0 0 24px rgba(20,184,166,.6);
+    pointer-events: none; transition: all .25s ease; display: none; z-index: 99991; }
+  #cf-tour-bubble { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); width: min(440px, 92vw);
+    background: #0f172a; color: #e2e8f0; border: 1px solid #14b8a6; border-radius: 16px; padding: 20px 22px;
+    box-shadow: 0 16px 50px rgba(0,0,0,.55); z-index: 99992; display: none; }
+  #cf-tour-bubble .cf-step-num { font-size: 12px; font-weight: 800; color: #14b8a6; letter-spacing: 1px; }
+  #cf-tour-bubble h3 { font-size: 18px; margin: 6px 0 8px; color: #fff; }
+  #cf-tour-bubble p { font-size: 15px; line-height: 1.5; color: #cbd5e1; }
+  #cf-tour-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; gap: 10px; }
+  #cf-tour-actions .cf-dots { font-size: 12px; color: #64748b; }
+  #cf-tour-actions button { border: none; border-radius: 9px; padding: 10px 16px; font-size: 14px; font-weight: 700; cursor: pointer; }
+  .cf-btn-prev { background: #1e293b; color: #cbd5e1; }
+  .cf-btn-next { background: #14b8a6; color: #fff; }
+  .cf-btn-close { position: absolute; top: 10px; right: 14px; background: none; border: none; color: #64748b; font-size: 20px; cursor: pointer; }
+</style>
+
+<button id="cf-guide-btn" onclick="cfTourStart()">📖 Guía</button>
+<div id="cf-tour-overlay" onclick="cfTourEnd()"></div>
+<div id="cf-tour-ring"></div>
+<div id="cf-tour-bubble">
+  <button class="cf-btn-close" onclick="cfTourEnd()">✕</button>
+  <div class="cf-step-num" id="cf-step-num">PASO 1</div>
+  <h3 id="cf-step-title">Título</h3>
+  <p id="cf-step-text">Texto</p>
+  <div id="cf-tour-actions">
+    <span class="cf-dots" id="cf-step-dots">1 / 5</span>
+    <div style="display:flex; gap:8px;">
+      <button class="cf-btn-prev" onclick="cfTourPrev()">Anterior</button>
+      <button class="cf-btn-next" id="cf-btn-next" onclick="cfTourNext()">Siguiente →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Pasos de la guía para el médico: registrar al paciente con QR
+  const CF_TOUR_STEPS = [
+    { title: 'Muestra el código QR de registro', text: 'Aquí está el QR de "Registro de Pacientes". Este es el código que escanea el paciente para registrar su visita. También puedes imprimirlo y dejarlo en recepción.', target: '#login-qr-section, #qr-display, #btn-mode-registro' },
+    { title: 'El paciente escanea el QR', text: 'Pídele al paciente que apunte la cámara de su celular al código QR. Se le abrirá la página "Registro de Visita".', target: null },
+    { title: 'El paciente llena sus datos', text: 'El paciente escribe su Nombre completo y su WhatsApp/Teléfono y toca "Registrar". Toma solo unos segundos.', target: null },
+    { title: 'Aparece en tu lista al instante', text: 'El paciente aparece automáticamente en tu panel de Clinic Full, con su WhatsApp ya vinculado. ✅', target: null },
+    { title: 'Ahora sí, atiéndelo', text: 'Abre la ficha del paciente y comienza la consulta. Todo lo que registres queda guardado en la nube.', target: null },
+  ];
+  let cfTourIdx = 0;
+
+  function cfTourStart() { cfTourIdx = 0; document.getElementById('cf-tour-overlay').style.display = 'block'; cfTourShow(0); }
+  function cfTourEnd() {
+    document.getElementById('cf-tour-overlay').style.display = 'none';
+    document.getElementById('cf-tour-bubble').style.display = 'none';
+    document.getElementById('cf-tour-ring').style.display = 'none';
+  }
+  function cfTourNext() { if (cfTourIdx < CF_TOUR_STEPS.length - 1) { cfTourIdx++; cfTourShow(cfTourIdx); } else { cfTourEnd(); } }
+  function cfTourPrev() { if (cfTourIdx > 0) { cfTourIdx--; cfTourShow(cfTourIdx); } }
+
+  function cfTourShow(i) {
+    const s = CF_TOUR_STEPS[i];
+    document.getElementById('cf-step-num').textContent = 'PASO ' + (i + 1);
+    document.getElementById('cf-step-title').textContent = s.title;
+    document.getElementById('cf-step-text').textContent = s.text;
+    document.getElementById('cf-step-dots').textContent = (i + 1) + ' / ' + CF_TOUR_STEPS.length;
+    document.getElementById('cf-btn-next').textContent = (i === CF_TOUR_STEPS.length - 1) ? 'Terminar ✓' : 'Siguiente →';
+    document.getElementById('cf-tour-bubble').style.display = 'block';
+
+    // Resaltar el elemento si existe y es visible en la pantalla actual
+    const ring = document.getElementById('cf-tour-ring');
+    let el = null;
+    if (s.target) { for (const sel of s.target.split(',')) { const c = document.querySelector(sel.trim()); if (c && c.offsetParent !== null) { el = c; break; } } }
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => {
+        const r = el.getBoundingClientRect();
+        ring.style.display = 'block';
+        ring.style.top = (r.top + window.scrollY - 6) + 'px';
+        ring.style.left = (r.left + window.scrollX - 6) + 'px';
+        ring.style.width = (r.width + 12) + 'px';
+        ring.style.height = (r.height + 12) + 'px';
+      }, 250);
+    } else {
+      ring.style.display = 'none';
+    }
+  }
+</script>
 </body>
 </html>
