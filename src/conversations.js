@@ -589,6 +589,29 @@ function saveAppointment(jid, appointmentData) {
       });
   }
 
+  // 🔔 Aviso al dueño EN EL MOMENTO (best-effort; nunca rompe el guardado)
+  try {
+    const owner = (process.env.OWNER_PHONE || '').replace(/\D/g, '');
+    if (owner && owner.length >= 8) {
+      const wa = require('./whatsapp');
+      const msg = [
+        '🔔 *NUEVA CITA — Clinic Full*',
+        '',
+        `👤 ${appointment.nombre || 'Paciente'}`,
+        (appointment.telefono || phone) ? `📱 ${appointment.telefono || phone}` : null,
+        appointment.fecha ? `📅 ${appointment.fecha}` : null,
+        appointment.hora ? `🕐 ${appointment.hora}` : null,
+        appointment.servicio ? `🦷 ${appointment.servicio}` : null,
+        '',
+        '_Aviso automático de Clinic Full_'
+      ].filter(Boolean).join('\n');
+      wa.sendMessage(owner + '@s.whatsapp.net', msg).catch(() => {});
+      console.log(`🔔 [Nueva cita] Aviso enviado al dueño (${owner}).`);
+    }
+  } catch (e) {
+    console.error('🔔 [Nueva cita] No se pudo avisar al dueño:', e.message);
+  }
+
   return appointment;
 }
 
