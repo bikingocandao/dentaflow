@@ -33,19 +33,14 @@ services:
         value: https://zajphxjmohccdkkbkmvk.supabase.co
       - key: SUPABASE_KEY
         sync: false # Pega aquí (en el panel de Render) la misma llave del archivo .env
+      # ─── Persistencia en disco: conserva la SESIÓN de WhatsApp y datos locales ───
+      - key: DATA_DIR
+        value: /var/data/data
+      - key: AUTH_DIR
+        value: /var/data/auth_info
 
-    # ⚠️ PERSISTENCIA DE DATOS (OPCIONAL - PLAN DE PAGO)
-    #
-    # El plan gratuito de Render borra los datos locales (sesión de WhatsApp y citas) al reiniciar.
-    # Si actualizas a un plan de pago, puedes descomentar la sección de disco a continuación para 
-    # activar la persistencia ilimitada de datos.
-    #
-    #   - key: DATA_DIR
-    #     value: /var/data/data
-    #   - key: AUTH_DIR
-    #     value: /var/data/auth_info
-    #
-    # disk:
-    #   name: dentaflow-storage
-    #   mountPath: /var/data
-    #   sizeGB: 1
+    # 💾 Disco permanente (plan de pago) — la sesión de WhatsApp NO se pierde al reiniciar
+    disk:
+      name: dentaflow-storage
+      mountPath: /var/data
+      sizeGB: 1
