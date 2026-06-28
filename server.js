@@ -122,6 +122,9 @@ app.use((req, res, next) => {
   if (req.path.startsWith('/api/patients/') && req.path.endsWith('/compliance') && req.method === 'POST') {
     return next(); // Public: patient marks compliance from their phone
   }
+  if (req.path === '/api/reporte-diario/test' && req.method === 'GET') {
+    return next(); // Público: probar el reporte diario al dueño
+  }
   requireAuth(req, res, next);
 });
 
@@ -1225,6 +1228,79 @@ async function start() {
       console.error('Error en recordatorios:', e.message);
     }
   }, 60 * 60 * 1000);
+
+  // 7. Reporte diario al dueño (revisa cada 10 min; envía una vez al llegar la hora)
+  setInterval(async () => {
+    try {
+      const { date, hour } = _localParts();
+      const targetHour = parseInt(process.env.DAILY_REPORT_HOUR || '20', 10); // 8 PM por defecto
+      if (hour === targetHour && _lastDailyReportDate !== date) {
+        _lastDailyReportDate = date;
+        await sendDailyOwnerReport();
+      }
+    } catch (e) {
+      console.error('Error en reporte diario:', e.message);
+    }
+  }, 10 * 60 * 1000);
 }
+
+// ═══════════════════════════════════════════════
+// 📊 REPORTE DIARIO AUTOMÁTICO AL DUEÑO (por WhatsApp)
+// ═══════════════════════════════════════════════
+let _lastDailyReportDate = null;
+
+// Fecha (YYYY-MM-DD) y hora local según la zona horaria configurada
+function _localParts() {
+  const tz = process.env.GOOGLE_TIMEZONE || 'America/Santo_Domingo';
+  const s = new Date().toLocaleString('en-CA', { timeZone: tz, hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  const parts = s.split(',');
+  const date = parts[0].trim();                 // 2026-06-27
+  const hour = parseInt((parts[1] || '0').trim().split(':')[0], 10) || 0;
+  return { date, hour, tz };
+}
+
+async function sendDailyOwnerReport() {
+  const owner = (process.env.OWNER_PHONE || '').replace(/\D/g, '');
+  if (!owner || owner.length < 8) { console.log('📊 [Reporte diario] OWNER_PHONE no configurado; se omite.'); return false; }
+
+  const { date, tz } = _localParts();
+  const appts = (conversations.getAppointments && conversations.getAppointments()) || [];
+  const pats = (conversations.getPatients && conversations.getPatients()) || [];
+  const isToday = (iso) => { if (!iso) return false; try { return new Date(iso).toLocaleDateString('en-CA', { timeZone: tz }) === date; } catch (e) { return false; } };
+  const dPretty = date.split('-').reverse().join('/'); // DD/MM/YYYY
+
+  const newApptsToday = appts.filter(a => isToday(a.createdAt));
+  const newPatsToday = pats.filter(p => isToday(p.createdAt));
+  const citasHoy = appts.filter(a => a.fecha && (String(a.fecha).includes(date) || String(a.fecha).includes(dPretty)));
+
+  const lines = [
+    '📊 *REPORTE DIARIO — Clinic Full*',
+    `📅 ${dPretty}`,
+    '',
+    `🆕 Citas registradas hoy: *${newApptsToday.length}*`,
+    `👤 Pacientes nuevos hoy: *${newPatsToday.length}*`,
+    `📋 Citas agendadas para hoy: *${citasHoy.length}*`,
+  ];
+  if (citasHoy.length) {
+    lines.push('', '*Citas de hoy:*');
+    citasHoy.slice(0, 15).forEach(a => lines.push(`• ${a.hora || '--'} — ${a.nombre || 'Sin nombre'}${a.servicio ? ' (' + a.servicio + ')' : ''}`));
+  }
+  lines.push('', `📈 Acumulado: ${appts.length} citas · ${pats.length} pacientes`, '', '_Clinic Full · Reporte automático_');
+
+  try {
+    await sendMessage(owner + '@s.whatsapp.net', lines.join('\n'));
+    console.log(`📊 [Reporte diario] Enviado al dueño (${owner}).`);
+    return true;
+  } catch (e) {
+    console.error('📊 [Reporte diario] Error al enviar:', e.message);
+    return false;
+  }
+}
+
+// Endpoint para probar el reporte a mano (envía ahora mismo al dueño)
+app.get('/api/reporte-diario/test', async (req, res) => {
+  const ok = await sendDailyOwnerReport();
+  res.json({ success: ok, message: ok ? 'Reporte enviado al dueño por WhatsApp.' : 'No se envió (revisa OWNER_PHONE y que WhatsApp esté conectado).' });
+});
 
 start().catch(console.error);
