@@ -41,10 +41,24 @@ async function getAIResponse(conversationHistory, plan) {
   const systemPrompt = generarPrompt(plan);
   const modelName = process.env.AI_MODEL || 'llama-3.3-70b-versatile';
 
+  // 📅 Contexto de fecha/hora actual: así el bot entiende "hoy", "mañana",
+  // "el lunes", etc. y agenda en la fecha correcta (formato YYYY-MM-DD).
+  const tz = process.env.GOOGLE_TIMEZONE || 'America/Santo_Domingo';
+  const ahora = new Date();
+  const fechaLegible = ahora.toLocaleDateString('es-DO', { timeZone: tz, weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const horaLegible = ahora.toLocaleTimeString('es-DO', { timeZone: tz, hour: '2-digit', minute: '2-digit' });
+  const isoHoy = ahora.toLocaleDateString('en-CA', { timeZone: tz });
+  const contextoFecha = `=== FECHA Y HORA ACTUAL (referencia) ===
+Hoy es ${fechaLegible}. Son las ${horaLegible}. La fecha de hoy en formato ISO es ${isoHoy}.
+Usa SIEMPRE esta fecha como referencia para entender "hoy", "mañana", "pasado mañana", "el lunes", "este sábado", "la próxima semana", etc.
+En el bloque [CITA_CONFIRMADA] la fecha DEBE ir en formato YYYY-MM-DD calculado a partir de hoy.
+Nunca agendes una cita en una fecha que ya pasó: si la fecha pedida ya pasó, ofrece amablemente la próxima disponible.`;
+
   try {
     // Groq usa el mismo formato que OpenAI: system, user, assistant
     const messages = [
       { role: 'system', content: systemPrompt },
+      { role: 'system', content: contextoFecha },
       ...conversationHistory
     ];
 
