@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conectar WhatsApp — Clinic Full</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f172a; color: #e2e8f0; padding: 24px; line-height: 1.5; }
+  .sheet { max-width: 720px; margin: 0 auto; background: #fff; color: #0f172a; border-radius: 16px; padding: 32px; box-shadow: 0 10px 40px rgba(0,0,0,.4); }
+  .head { text-align: center; border-bottom: 4px solid #25D366; padding-bottom: 16px; margin-bottom: 24px; }
+  .brand { font-size: 30px; font-weight: 900; color: #0f172a; }
+  .brand span { color: #14b8a6; }
+  .sub { font-size: 14px; color: #64748b; margin-top: 4px; letter-spacing: .5px; }
+  h1 { font-size: 20px; text-align: center; color: #128C7E; margin-bottom: 22px; }
+  .step { display: flex; gap: 16px; align-items: flex-start; background: #f0fdf4; border: 1px solid #86efac; border-radius: 12px; padding: 16px 18px; margin-bottom: 14px; }
+  .num { flex: 0 0 44px; height: 44px; background: #25D366; color: #fff; font-size: 22px; font-weight: 900; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .step h2 { font-size: 17px; color: #0f172a; margin-bottom: 4px; }
+  .step p { font-size: 15px; color: #334155; }
+  .tip { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 12px; padding: 14px 18px; margin-top: 18px; font-size: 14px; color: #92400e; }
+  .foot { text-align: center; font-size: 12px; color: #94a3b8; margin-top: 22px; }
+  @media print { body { background: #fff; padding: 0; } .sheet { box-shadow: none; max-width: 100%; } .noprint { display: none; } }
+  .printbtn { display:block; margin: 0 auto 18px; background:#25D366; color:#fff; border:none; padding:12px 22px; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; }
+</style>
+</head>
+<body>
+  <button class="printbtn noprint" onclick="window.print()">🖨️ Imprimir esta guía</button>
+  <div class="sheet">
+    <div class="head">
+      <div class="brand">CLINIC <span>FULL</span></div>
+      <div class="sub">CÓMO CONECTAR EL WHATSAPP DEL BOT</div>
+    </div>
+    <h1>📱 Vincular el WhatsApp del negocio (se hace una sola vez)</h1>
+
+    <div class="step">
+      <div class="num">1</div>
+      <div><h2>Abre Clinic Full en la computadora</h2><p>Inicia sesión en el panel. Si el bot no está conectado, verás un <b>código QR de WhatsApp</b> con el texto <b>“Escanear QR”</b>.</p></div>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <div><h2>Toma el celular del negocio</h2><p>Usa el <b>WhatsApp con el que quieres que responda el bot</b> (el número del negocio). Abre WhatsApp en ese teléfono.</p></div>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <div><h2>Entra a “Dispositivos vinculados”</h2><p>En WhatsApp: toca <b>⋮ (menú)</b> o <b>Ajustes</b> → <b>Dispositivos vinculados</b> → <b>Vincular un dispositivo</b>.</p></div>
+    </div>
+    <div class="step">
+      <div class="num">4</div>
+      <div><h2>Escanea el QR de la pantalla</h2><p>Apunta la cámara del celular al <b>código QR que muestra Clinic Full</b> en la computadora.</p></div>
+    </div>
+    <div class="step">
+      <div class="num">5</div>
+      <div><h2>Espera a que diga “Conectado”</h2><p>En unos segundos el panel cambia a <b>🟢 Conectado</b>. ¡Listo! El bot ya responde los mensajes desde tu WhatsApp.</p></div>
+    </div>
+
+    <div class="tip">💡 <b>Importante:</b> Esto se hace <b>una sola vez</b>. El teléfono debe tener <b>internet</b>. Si algún día se desconecta, solo repite estos pasos para volver a escanear el QR.</div>
+
+    <div class="foot">Clinic Full · Conexión de WhatsApp del negocio</div>
+  </div>
+</body>
+</html>
