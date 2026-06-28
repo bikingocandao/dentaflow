@@ -33,11 +33,33 @@ function initAI() {
  * @param {string} plan - Plan activo (basico, estandar, completo)
  * @returns {Promise<string>} Respuesta del bot
  */
-async function getAIResponse(conversationHistory, plan) {
-  if (!client) {
-    return '⚠️ El servicio de IA no está disponible en este momento. Un agente humano le atenderá pronto.';
+// Respaldo: llama a OpenRouter (API compatible con OpenAI) por fetch
+async function callOpenRouter(messages) {
+  const key = process.env.OPENROUTER_API_KEY;
+  if (!key) return null;
+  const model = process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.3-70b-instruct';
+  try {
+    const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${key}`,
+        'Content-Type': 'application/json',
+        'X-Title': 'Clinic Full'
+      },
+      body: JSON.stringify({ model, messages, max_tokens: 500, temperature: 0.7 })
+    });
+    const data = await resp.json();
+    const txt = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    if (txt) { console.log(`🔁 Respondido por OpenRouter (respaldo) · modelo ${model}`); return txt; }
+    console.error('❌ OpenRouter sin respuesta:', JSON.stringify(data).slice(0, 200));
+    return null;
+  } catch (e) {
+    console.error('❌ OpenRouter falló:', e.message);
+    return null;
   }
+}
 
+async function getAIResponse(conversationHistory, plan) {
   const systemPrompt = generarPrompt(plan);
   const modelName = process.env.AI_MODEL || 'llama-3.3-70b-versatile';
 
@@ -54,35 +76,33 @@ Usa SIEMPRE esta fecha como referencia para entender "hoy", "mañana", "pasado m
 En el bloque [CITA_CONFIRMADA] la fecha DEBE ir en formato YYYY-MM-DD calculado a partir de hoy.
 Nunca agendes una cita en una fecha que ya pasó: si la fecha pedida ya pasó, ofrece amablemente la próxima disponible.`;
 
-  try {
-    // Groq usa el mismo formato que OpenAI: system, user, assistant
-    const messages = [
-      { role: 'system', content: systemPrompt },
-      { role: 'system', content: contextoFecha },
-      ...conversationHistory
-    ];
+  // Mismo formato OpenAI para ambos proveedores: system, user, assistant
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    { role: 'system', content: contextoFecha },
+    ...conversationHistory
+  ];
 
-    const response = await client.chat.completions.create({
-      model: modelName,
-      messages: messages,
-      max_tokens: 500,
-      temperature: 0.7,
-    });
-
-    return response.choices[0]?.message?.content || 'Disculpe, no pude generar una respuesta. ¿Puede repetir su consulta?';
-
-  } catch (error) {
-    console.error('❌ Error de IA:', error.message);
-
-    if (error.status === 401) {
-      return '⚠️ Error de autenticación con el servicio de IA. Verifica tu GROQ_API_KEY.';
+  // 1) PRINCIPAL: Groq (rápido y gratis)
+  if (client) {
+    try {
+      const response = await client.chat.completions.create({
+        model: modelName, messages, max_tokens: 500, temperature: 0.7,
+      });
+      const txt = response.choices[0]?.message?.content;
+      if (txt) return txt;
+    } catch (error) {
+      console.error(`❌ Groq falló (${error.status || '?'}): ${error.message}. Probando respaldo...`);
+      // No respondemos aún: intentamos OpenRouter abajo.
     }
-    if (error.status === 429) {
-      return '⏳ Estamos recibiendo muchos mensajes. Por favor, intente de nuevo en unos segundos.';
-    }
-
-    return '😊 Disculpe, estoy teniendo dificultades técnicas. Un miembro del equipo le atenderá pronto.';
   }
+
+  // 2) RESPALDO: OpenRouter (si está configurado)
+  const orResp = await callOpenRouter(messages);
+  if (orResp) return orResp;
+
+  // 3) Si ambos fallan
+  return '😊 Disculpe, estoy teniendo dificultades técnicas. Un miembro del equipo le atenderá pronto.';
 }
 
 /**
