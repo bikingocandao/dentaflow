@@ -1,0 +1,13 @@
+# No copiar estas carpetas al contenedor (van como volúmenes o son locales)
+node_modules
+auth_info
+data
+logs
+.git
+.gitignore
+*.log
+.netlify
+scratch
+.env
+.env.*
+clientes

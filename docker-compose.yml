@@ -1,0 +1,23 @@
+# ─────────────────────────────────────────────
+# docker-compose — Clinic Full
+# Levanta el bot en un contenedor con datos y sesión de WhatsApp persistentes.
+#
+# Uso:
+#   docker compose up -d        (arrancar en segundo plano)
+#   docker compose logs -f      (ver lo que pasa / escanear el QR)
+#   docker compose down         (detener)
+#
+# Para VARIOS negocios: copia este bloque cambiando el nombre, el puerto
+# y las carpetas (data1/auth1, data2/auth2, ...) y usa un .env por negocio.
+# ─────────────────────────────────────────────
+services:
+  bot:
+    build: .
+    container_name: clinic-full-bot
+    restart: unless-stopped
+    env_file: .env            # variables del negocio (GROQ, SUPABASE, OWNER_PHONE...)
+    ports:
+      - "3000:3000"           # http://IP:3000 → panel del bot
+    volumes:
+      - ./auth_info:/app/auth_info   # 📱 sesión de WhatsApp (NO se pierde al reiniciar)
+      - ./data:/app/data             # 🗄️ datos locales (respaldo; lo principal está en Supabase)
