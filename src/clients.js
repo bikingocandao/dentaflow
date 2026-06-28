@@ -152,6 +152,7 @@ function createClient(options) {
   var plan = options.plan;
   var port = options.port;
   var templateDir = options.templateDir;
+  var groqApiKey = options.groqApiKey; // 🔑 llave de IA propia de este negocio (opcional)
 
   var rootDir = path.resolve(templateDir, '..');
   var clientDir = path.join(rootDir, folderName);
@@ -172,7 +173,7 @@ function createClient(options) {
   // 3. Crear .env
   var envContent = [
     '# ' + businessName.toUpperCase() + ' — CHATBOT IA',
-    'GROQ_API_KEY=' + (process.env.GROQ_API_KEY || ''),
+    'GROQ_API_KEY=' + (groqApiKey || process.env.GROQ_API_KEY || ''),
     'PORT=' + port,
     'PLAN_ACTIVO=' + plan,
     'AI_MODEL=llama-3.3-70b-versatile',

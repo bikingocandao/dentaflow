@@ -438,6 +438,8 @@ async function sendReminders() {
     } catch (e) {
       console.error(`❌ Error recordatorio ${apt.nombre}:`, e.message);
     }
+    // 🛡️ Anti-baneo: espaciar 5–12s entre cada envío (nunca en ráfaga)
+    await delay(5000 + Math.floor(Math.random() * 7000));
   }
 
   // 2. Recordatorios programados de retorno
@@ -463,8 +465,8 @@ async function sendReminders() {
       } catch (e) {
         console.error(`❌ Error en recordatorio programado para ${apt.nombre}:`, e.message);
       }
-      // Pequeña pausa entre mensajes
-      await delay(800);
+      // 🛡️ Anti-baneo: espaciar 5–12s entre cada envío
+      await delay(5000 + Math.floor(Math.random() * 7000));
     }
   } catch (err) {
     console.error('Error procesando recordatorios programados:', err.message);
