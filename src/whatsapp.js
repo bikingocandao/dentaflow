@@ -257,6 +257,13 @@ async function processMessage(msg) {
     conversations.setClientName(jid, pushName);
   }
 
+  // 📒 Guardar SIEMPRE el contacto (número) de quien escribe, para poder recordarle luego.
+  // No duplica (busca por teléfono) y actualiza el nombre cuando llega uno real.
+  try {
+    const contactName = conversations.getClientName(jid) || pushName || ('Contacto ' + phone);
+    conversations.checkAndCreatePatient(contactName, phone, jid, '');
+  } catch (e) { /* best-effort, nunca rompe el flujo */ }
+
   // Marcar como "leído"
   try {
     await sock.readMessages([msg.key]);

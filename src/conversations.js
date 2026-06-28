@@ -911,6 +911,11 @@ function checkAndCreatePatient(nombre, telefono, jid, correo) {
     });
   } else {
     let changed = false;
+    // Si antes se guardó como "Contacto ..." y ahora llega un nombre real, actualizarlo
+    if (nombre && !String(nombre).startsWith('Contacto ') && (!existing.nombre || String(existing.nombre).startsWith('Contacto '))) {
+      existing.nombre = nombre;
+      changed = true;
+    }
     if (correo && !existing.correo) {
       existing.correo = correo;
       changed = true;
