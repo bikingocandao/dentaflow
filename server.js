@@ -11,6 +11,8 @@ const path = require('path');
 const os = require('os');
 
 const { initAI } = require('./src/ai');
+const ai = require('./src/ai'); // getAIResponse, extractAppointmentData, cleanBotResponse (para el webhook YCloud)
+const ycloud = require('./src/ycloud'); // WhatsApp API oficial (anti-baneo)
 const { connectWhatsApp, setSocketIO, getStatus, getQR, getQRAge, forceNewQR, sendReminders, sendMessage } = require('./src/whatsapp');
 const conversations = require('./src/conversations');
 const { loadConfig, saveConfig } = require('./src/prompts');
@@ -1289,7 +1291,11 @@ async function sendDailyOwnerReport() {
   lines.push('', `📈 Acumulado: ${appts.length} citas · ${pats.length} pacientes`, '', '_Clinic Full · Reporte automático_');
 
   try {
-    await sendMessage(owner + '@s.whatsapp.net', lines.join('\n'));
+    if (ycloud.isEnabled()) {
+      await ycloud.sendMessage(owner, lines.join('\n'));   // API oficial
+    } else {
+      await sendMessage(owner + '@s.whatsapp.net', lines.join('\n')); // Baileys
+    }
     console.log(`📊 [Reporte diario] Enviado al dueño (${owner}).`);
     return true;
   } catch (e) {
@@ -1297,6 +1303,46 @@ async function sendDailyOwnerReport() {
     return false;
   }
 }
+
+// ═══════════════════════════════════════════════
+// 📲 WEBHOOK DE YCLOUD — recibe mensajes por la API oficial de WhatsApp
+// Configura esta URL en YCloud: https://TU-DOMINIO/webhook/ycloud
+// ═══════════════════════════════════════════════
+app.post('/webhook/ycloud', async (req, res) => {
+  res.sendStatus(200); // responder rápido (YCloud espera 200)
+  try {
+    const ev = req.body || {};
+    const m = ev.whatsappInboundMessage;
+    if (!m) return; // no es un mensaje entrante (ej. estado de entrega) → ignorar
+    if (m.type !== 'text' || !(m.text && m.text.body)) return; // por ahora solo texto
+
+    const from = String(m.from || '').replace(/[^0-9]/g, '');
+    if (!from) return;
+    const text = m.text.body;
+    const name = (m.customerProfile && m.customerProfile.name) || '';
+    const jid = from + '@s.whatsapp.net';
+
+    console.log(`📩 [YCloud] ${from} (${name}): ${text}`);
+
+    conversations.addMessage(jid, 'user', text);
+    if (name && !conversations.getClientName(jid)) conversations.setClientName(jid, name);
+    // 📒 Guardar SIEMPRE el contacto
+    try { conversations.checkAndCreatePatient(conversations.getClientName(jid) || name || ('Contacto ' + from), from, jid, ''); } catch (e) {}
+
+    const history = conversations.getHistory(jid);
+    const plan = process.env.PLAN_ACTIVO || 'completo';
+    const raw = await ai.getAIResponse(history, plan);
+
+    const appt = ai.extractAppointmentData(raw);
+    if (appt) conversations.saveAppointment(jid, appt);
+
+    const clean = ai.cleanBotResponse(raw);
+    conversations.addMessage(jid, 'assistant', clean);
+    await ycloud.sendMessage(from, clean);
+  } catch (e) {
+    console.error('❌ [Webhook YCloud] Error:', e.message);
+  }
+});
 
 // Endpoint para probar el reporte a mano (envía ahora mismo al dueño)
 app.get('/api/reporte-diario/test', async (req, res) => {

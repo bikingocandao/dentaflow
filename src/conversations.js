@@ -593,7 +593,6 @@ function saveAppointment(jid, appointmentData) {
   try {
     const owner = (process.env.OWNER_PHONE || '').replace(/\D/g, '');
     if (owner && owner.length >= 8) {
-      const wa = require('./whatsapp');
       const msg = [
         '🔔 *NUEVA CITA — Clinic Full*',
         '',
@@ -605,7 +604,13 @@ function saveAppointment(jid, appointmentData) {
         '',
         '_Aviso automático de Clinic Full_'
       ].filter(Boolean).join('\n');
-      wa.sendMessage(owner + '@s.whatsapp.net', msg).catch(() => {});
+      // API oficial (YCloud) si está activa; si no, Baileys
+      const yc = require('./ycloud');
+      if (yc.isEnabled()) {
+        yc.sendMessage(owner, msg).catch(() => {});
+      } else {
+        require('./whatsapp').sendMessage(owner + '@s.whatsapp.net', msg).catch(() => {});
+      }
       console.log(`🔔 [Nueva cita] Aviso enviado al dueño (${owner}).`);
     }
   } catch (e) {
