@@ -629,6 +629,27 @@ app.put('/api/patients/:id', (req, res) => {
   }
 });
 
+// 🧹 Limpia los contactos basura guardados como "@lid" (no son teléfonos reales)
+app.post('/api/patients/limpiar-lid', (req, res) => {
+  try {
+    const eliminados = conversations.cleanLidContacts();
+    res.json({ success: true, eliminados: eliminados.length, detalle: eliminados.map(p => ({ id: p.id, nombre: p.nombre, telefono: p.telefono })) });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Borrar un contacto/paciente puntual
+app.delete('/api/patients/:id', (req, res) => {
+  try {
+    const ok = conversations.deletePatient(req.params.id);
+    if (!ok) return res.status(404).json({ error: 'Paciente no encontrado' });
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Historial de conversación WhatsApp para un paciente
 app.get('/api/patients/:id/chat', (req, res) => {
   try {

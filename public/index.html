@@ -1562,7 +1562,10 @@
             <div class="patients-search">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
                 <span style="font-size:12px;font-weight:700;color:var(--text-primary)">Pacientes</span>
-                <button class="btn btn-primary btn-sm" onclick="openNewPatientModal()" style="padding:4px 8px;font-size:11px"><i class="ti ti-plus"></i></button>
+                <div style="display:flex;gap:4px">
+                  <button class="btn btn-sm" onclick="limpiarContactosLid()" title="Borrar contactos basura (@lid) que no son teléfonos reales" style="padding:4px 8px;font-size:11px;background:#fde8e8;color:#c0392b;border:1px solid #f5c6cb"><i class="ti ti-trash"></i></button>
+                  <button class="btn btn-primary btn-sm" onclick="openNewPatientModal()" style="padding:4px 8px;font-size:11px"><i class="ti ti-plus"></i></button>
+                </div>
               </div>
               <input type="text" id="patients-search-input" placeholder="&#128269; Buscar paciente..." oninput="filterPatientsList()" autocomplete="off">
             </div>
@@ -4153,6 +4156,23 @@ function renderPatientsList() {
 
 function filterPatientsList() {
   renderPatientsList();
+}
+
+// 🧹 Borra los contactos basura guardados como "@lid" (no son teléfonos reales)
+async function limpiarContactosLid() {
+  if (!confirm('Se borrarán los contactos guardados como "@lid" (identificadores internos de WhatsApp, no teléfonos reales).\n\nLos contactos con número real NO se tocan. ¿Continuar?')) return;
+  try {
+    const res = await fetch('/api/patients/limpiar-lid', { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      alert(`✅ Limpieza lista. Se eliminaron ${data.eliminados} contacto(s) sin número real.`);
+      fetchPatients();
+    } else {
+      alert('❌ No se pudo limpiar: ' + (data.error || 'error desconocido'));
+    }
+  } catch (e) {
+    alert('❌ Error de conexión: ' + e.message);
+  }
 }
 
 function selectPatient(id) {

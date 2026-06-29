@@ -1000,8 +1000,33 @@ function updatePatient(id, data) {
   supabase.savePatient(patients[idx]).catch(err => {
     console.error('[Supabase] Error updating patient:', err.message);
   });
-  
+
   return patients[idx];
+}
+
+// Borra un paciente/contacto (local + Supabase)
+function deletePatient(id) {
+  const idx = patients.findIndex(p => p.id === id);
+  if (idx === -1) return false;
+  const [removed] = patients.splice(idx, 1);
+  try { fs.writeFileSync(PATIENTS_FILE, JSON.stringify(patients, null, 2)); } catch (e) {}
+  supabase.deletePatient(id).catch(err => console.error('[Supabase] Error deleting patient:', err.message));
+  return removed;
+}
+
+// 🧹 Limpia los contactos basura guardados como "@lid" (identificador anónimo
+// de WhatsApp) en vez del teléfono real. Detecta por el jid que termina en @lid.
+// Devuelve la lista de eliminados.
+function cleanLidContacts() {
+  const basura = patients.filter(p => p.jid && String(p.jid).endsWith('@lid'));
+  for (const p of basura) {
+    supabase.deletePatient(p.id).catch(err => console.error('[Supabase] Error deleting lid contact:', err.message));
+  }
+  if (basura.length) {
+    patients = patients.filter(p => !(p.jid && String(p.jid).endsWith('@lid')));
+    try { fs.writeFileSync(PATIENTS_FILE, JSON.stringify(patients, null, 2)); } catch (e) {}
+  }
+  return basura;
 }
 
 function getTemplates() {
@@ -1087,6 +1112,8 @@ module.exports = {
   checkAndCreatePatient,
   addPatient,
   updatePatient,
+  deletePatient,
+  cleanLidContacts,
   getTemplates,
   saveTemplate,
   deleteTemplate
