@@ -17,7 +17,7 @@ const { connectWhatsApp, setSocketIO, getStatus, getQR, getQRAge, forceNewQR, se
 const conversations = require('./src/conversations');
 const { loadConfig, saveConfig } = require('./src/prompts');
 const { createClient, getClientsList, getClientLiveStatus } = require('./src/clients');
-const { initVoice } = require('./src/voice');
+const { initVoice, transcribeBuffer } = require('./src/voice');
 const crypto = require('crypto');
 const QRCode = require('qrcode');
 
@@ -57,7 +57,10 @@ const io = new Server(server, { cors: { origin: '*' } });
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(express.json());
+// Guardamos el body CRUDO para poder verificar la firma del webhook de YCloud.
+app.use(express.json({
+  verify: (req, res, buf) => { req.rawBody = buf && buf.length ? buf.toString('utf8') : ''; }
+}));
 app.use(express.static(path.join(__dirname, 'public'), {
   setHeaders: (res, filePath) => {
     // Evitar caché en el navegador para HTML, JS y CSS para garantizar actualizaciones instantáneas
@@ -1358,20 +1361,60 @@ async function sendDailyOwnerReport() {
 // Configura esta URL en YCloud: https://TU-DOMINIO/webhook/ycloud
 // ═══════════════════════════════════════════════
 app.post('/webhook/ycloud', async (req, res) => {
+  // 🔐 1) Verificar la firma (que el POST venga REALMENTE de YCloud).
+  // Solo se exige si configuraste YCLOUD_WEBHOOK_SECRET.
+  const secret = process.env.YCLOUD_WEBHOOK_SECRET;
+  if (secret) {
+    const sigHeader = req.get('YCloud-Signature') || req.get('X-YCloud-Signature') || '';
+    if (!ycloud.verifySignature(req.rawBody, sigHeader, secret)) {
+      console.warn('⛔ [Webhook YCloud] Firma inválida — rechazado.');
+      return res.status(401).json({ error: 'firma inválida' });
+    }
+  }
+
   res.sendStatus(200); // responder rápido (YCloud espera 200)
   try {
     const ev = req.body || {};
     const m = ev.whatsappInboundMessage;
     if (!m) return; // no es un mensaje entrante (ej. estado de entrega) → ignorar
-    if (m.type !== 'text' || !(m.text && m.text.body)) return; // por ahora solo texto
 
     const from = String(m.from || '').replace(/[^0-9]/g, '');
     if (!from) return;
-    const text = m.text.body;
     const name = (m.customerProfile && m.customerProfile.name) || '';
     const jid = from + '@s.whatsapp.net';
 
-    console.log(`📩 [YCloud] ${from} (${name}): ${text}`);
+    // 📥 2) Extraer el texto según el tipo de mensaje (texto, imagen, audio, voz, etc.)
+    let text = '';
+    if (m.type === 'text' && m.text && m.text.body) {
+      text = m.text.body;
+    } else if (m.type === 'image') {
+      text = (m.image && m.image.caption) || '';
+      if (!text) text = '[El cliente envió una imagen]';
+    } else if (m.type === 'audio' || m.type === 'voice') {
+      // Descargar y transcribir la nota de voz
+      const media = m.audio || m.voice || {};
+      const buf = await ycloud.downloadMedia(media.link || media.url);
+      if (buf) {
+        const t = await transcribeBuffer(buf, 'ogg');
+        if (t) text = t;
+      }
+      if (!text) {
+        await ycloud.sendMessage(from, '😊 Recibí tu nota de voz pero no pude entenderla. ¿Podrías escribirme tu mensaje? ¡Gracias!');
+        return;
+      }
+    } else if (m.type === 'video' || m.type === 'document') {
+      const cap = (m[m.type] && m[m.type].caption) || '';
+      text = cap || '';
+      if (!text) {
+        await ycloud.sendMessage(from, '😊 Recibí tu archivo. Por aquí te atiendo mejor por texto: ¿en qué te puedo ayudar?');
+        return;
+      }
+    } else {
+      return; // tipo no soportado → ignorar en silencio
+    }
+
+    if (!text.trim()) return;
+    console.log(`📩 [YCloud] ${from} (${name}) [${m.type}]: ${text}`);
 
     conversations.addMessage(jid, 'user', text);
     if (name && !conversations.getClientName(jid)) conversations.setClientName(jid, name);
@@ -1383,7 +1426,10 @@ app.post('/webhook/ycloud', async (req, res) => {
     const raw = await ai.getAIResponse(history, plan);
 
     const appt = ai.extractAppointmentData(raw);
-    if (appt) conversations.saveAppointment(jid, appt);
+    if (appt) {
+      if (!appt.telefono) appt.telefono = from;
+      conversations.saveAppointment(jid, appt);
+    }
 
     const clean = ai.cleanBotResponse(raw);
     conversations.addMessage(jid, 'assistant', clean);

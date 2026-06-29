@@ -104,10 +104,43 @@ async function transcribeVoiceNote(msg, sock) {
 }
 
 /**
+ * Transcribe un audio que ya tenemos en memoria (Buffer). Útil para audios que
+ * llegan por la API oficial (YCloud), donde el audio se descarga de una URL.
+ * @param {Buffer} buffer  contenido del audio
+ * @param {string} [ext]   extensión (ogg, mp3, m4a...) para el archivo temporal
+ * @returns {Promise<string|null>}
+ */
+async function transcribeBuffer(buffer, ext) {
+  if (!client) { console.log('⚠️ Whisper no inicializado'); return null; }
+  if (!buffer || !buffer.length) return null;
+  if (!fs.existsSync(TEMP_DIR)) {
+    try { fs.mkdirSync(TEMP_DIR, { recursive: true }); } catch (e) {}
+  }
+  const tempFile = path.join(TEMP_DIR, `voice_${Date.now()}.${ext || 'ogg'}`);
+  try {
+    fs.writeFileSync(tempFile, buffer);
+    const transcription = await client.audio.transcriptions.create({
+      file: fs.createReadStream(tempFile),
+      model: 'whisper-large-v3',
+      language: 'es',
+      response_format: 'text'
+    });
+    const text = typeof transcription === 'string' ? transcription.trim() : (transcription.text || '').trim();
+    if (text) console.log(`✅ Voz (YCloud) transcrita: "${text.substring(0, 80)}${text.length > 80 ? '...' : ''}"`);
+    return text || null;
+  } catch (error) {
+    console.error('❌ Error transcribiendo audio (buffer):', error.message);
+    return null;
+  } finally {
+    try { fs.unlinkSync(tempFile); } catch (e) { /* ignorar */ }
+  }
+}
+
+/**
  * Verifica si un mensaje contiene una nota de voz.
  */
 function isVoiceMessage(msg) {
   return !!(msg.message?.audioMessage);
 }
 
-module.exports = { initVoice, transcribeVoiceNote, isVoiceMessage };
+module.exports = { initVoice, transcribeVoiceNote, transcribeBuffer, isVoiceMessage };

@@ -12,6 +12,26 @@ const { getAIResponse, extractAppointmentData, cleanBotResponse } = require('./a
 const conversations = require('./conversations');
 const { initVoice, transcribeVoiceNote, isVoiceMessage } = require('./voice');
 const tts = require('./tts');
+const ycloud = require('./ycloud');
+
+/**
+ * Envía un recordatorio. Fuera de la ventana de 24h de WhatsApp NO se puede
+ * mandar texto libre: hay que usar una PLANTILLA aprobada. Si YCloud está
+ * activo y hay plantilla configurada, la usamos; si no, enviamos texto normal.
+ * @param {string} phoneOrJid  destino
+ * @param {string} text  texto de respaldo (modo QR / dentro de 24h)
+ * @param {string} templateName  nombre de la plantilla aprobada en YCloud
+ * @param {string[]} templateParams  valores de {{1}},{{2}}... en orden
+ */
+async function sendReminderOutbound(phoneOrJid, text, templateName, templateParams) {
+  if (ycloud.isEnabled() && templateName) {
+    const lang = process.env.YCLOUD_TEMPLATE_LANG || 'es';
+    const to = String(phoneOrJid).split('@')[0];
+    if (await ycloud.sendTemplate(to, templateName, lang, templateParams || [])) return true;
+    // si la plantilla falla, caemos a texto normal abajo
+  }
+  return sendMessage(phoneOrJid, text);
+}
 
 
 let sock = null;
@@ -448,7 +468,7 @@ async function sendReminders() {
     const msg = `Hola, ${apt.nombre} 👋\nMañana tiene una cita:\n\n📅 ${apt.fecha} a las ⏰ ${apt.hora}\n💼 Servicio: ${apt.servicio}\n\nConfirme su asistencia:\n✅ SÍ — Confirmar\n🔄 CAMBIAR — Reprogramar\n❌ CANCELAR — Cancelar\n\n¡Le esperamos! 😊`;
 
     try {
-      await sendMessage(apt.jid, msg);
+      await sendReminderOutbound(apt.jid, msg, process.env.YCLOUD_REMINDER_TEMPLATE, [apt.nombre, apt.fecha, apt.hora, apt.servicio]);
       conversations.markReminderSent(apt.id);
       console.log(`🔔 Recordatorio enviado a ${apt.nombre}`);
     } catch (e) {
@@ -475,7 +495,7 @@ async function sendReminders() {
       const msg = r.customMessage || `Hola, ${apt.nombre} 👋\nLe escribimos de ${bizName} para saludarle y recordarle su consulta de seguimiento. Ha pasado el tiempo establecido (${r.timeframe}) para su: **${r.motive || 'Consulta general'}**.\n\nEscríbanos por aquí para agendar su próxima cita. ¡Le esperamos! 😊`;
 
       try {
-        await sendMessage(apt.jid, msg);
+        await sendReminderOutbound(apt.jid, msg, process.env.YCLOUD_RETURN_TEMPLATE || process.env.YCLOUD_REMINDER_TEMPLATE, [apt.nombre, r.motive || 'Consulta', bizName]);
         conversations.markScheduledReminderSent(apt.id);
         console.log(`🔔 Recordatorio programado enviado a ${apt.nombre} (Motivo: ${r.motive})`);
       } catch (e) {

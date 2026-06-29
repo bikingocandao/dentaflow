@@ -64,21 +64,50 @@ http://TU-IP-DEL-VPS:PUERTO/webhook/ycloud
 
 ---
 
-## 🧩 Pendientes recomendados (mejoras, no obligatorias para arrancar)
+## 🧩 Estado de las mejoras
 
-- [ ] **HTTPS con dominio** para los webhooks (ej. `cliente1.tudominio.com`).
-      Hoy funciona con `http://IP:PUERTO`, pero HTTPS es más profesional y seguro.
-      Se logra con Nginx + Certbot (Let's Encrypt) como "proxy" delante de los puertos.
-- [ ] **Verificación de firma del webhook de YCloud** (validar que el POST viene
-      de YCloud y no de un tercero). Hoy aceptamos cualquier POST al endpoint.
-- [ ] **Plantillas (templates) de YCloud** para mensajes que inicia el negocio
-      (recordatorios fuera de la ventana de 24h). Meta exige plantilla aprobada.
-- [ ] **Soporte de imágenes/audio entrantes por YCloud** (hoy el webhook solo
-      procesa `type === 'text'`).
+- [x] ~~**HTTPS con dominio** para los webhooks~~ ✅ GUÍA LISTA → ver
+      [GUIA_HTTPS_DOMINIO.md](GUIA_HTTPS_DOMINIO.md) (Nginx + Certbot, candado gratis).
+- [x] ~~**Verificación de firma del webhook**~~ ✅ HECHO. Pon el secreto del webhook
+      en `YCLOUD_WEBHOOK_SECRET` (lo da YCloud al crear el webhook). Si está, el bot
+      rechaza cualquier POST con firma inválida (header `YCloud-Signature`).
+- [x] ~~**Plantillas (templates) de YCloud** para recordatorios fuera de 24h~~ ✅ HECHO.
+      Crea la plantilla en YCloud y configúrala (ver abajo).
+- [x] ~~**Imágenes/audio entrantes por YCloud**~~ ✅ HECHO. El webhook ahora entiende
+      texto, imagen (usa el caption), nota de voz/audio (la **transcribe** con Whisper),
+      y video/documento (responde pidiendo texto).
 - [x] ~~**Auto-registro del webhook** vía API de YCloud al crear el bot~~ ✅ HECHO
       (usa `PUBLIC_HOST`/`PUBLIC_PROTO` del panel maestro para armar la URL).
 - [ ] **Editar YCloud de un bot ya creado** desde el panel (hoy se pone al crear;
       para cambiarlo se edita el `.env` del bot y se reinicia con `pm2 restart`).
+
+---
+
+## 🔐 Verificación de firma (anti-falsificación)
+1. En YCloud, al crear/ver el webhook, copia su **Signing secret**.
+2. Ponlo en el `.env` del bot:
+   ```
+   YCLOUD_WEBHOOK_SECRET=el-secreto-del-webhook
+   ```
+3. Reinicia el bot. Desde ahora, todo POST al webhook se valida; los falsos se rechazan (401).
+   Si dejas la variable vacía, NO se exige firma (modo abierto, como antes).
+
+## 📨 Plantillas para recordatorios (fuera de las 24h)
+WhatsApp NO permite texto libre si pasaron +24h sin que el cliente escriba: hay que
+usar una **plantilla aprobada**. Pasos:
+1. En YCloud → WhatsApp → Templates, crea una plantilla de recordatorio. Ej. cuerpo:
+   `Hola {{1}}, le recordamos su cita el {{2}} a las {{3}} para {{4}}.`
+2. Espera a que Meta la **apruebe**.
+3. En el `.env` del bot pon el nombre EXACTO y el idioma:
+   ```
+   YCLOUD_REMINDER_TEMPLATE=recordatorio_cita
+   YCLOUD_TEMPLATE_LANG=es
+   # (opcional) plantilla para recordatorios de retorno:
+   YCLOUD_RETURN_TEMPLATE=recordatorio_retorno
+   ```
+   - Orden de variables del recordatorio de cita: **{{1}}=nombre, {{2}}=fecha, {{3}}=hora, {{4}}=servicio**.
+   - Orden del de retorno: **{{1}}=nombre, {{2}}=motivo, {{3}}=negocio**.
+4. Si no configuras plantilla, los recordatorios se mandan como texto (solo funcionan dentro de las 24h o por QR).
 
 ---
 
