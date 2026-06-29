@@ -3977,7 +3977,14 @@ async function createNewClient() {
     if(result.success) {
       let extra = '';
       if(result.adminUser) extra += `<br><b>Panel:</b> usuario <code>${escHtml(result.adminUser)}</code> · clave <code>${escHtml(result.adminPass||'')}</code>`;
-      if(result.whatsapp === 'ycloud') extra += `<br>📲 <b>WhatsApp OFICIAL (YCloud)</b> activado. Registra el webhook en YCloud: <code>http://TU-IP:${escHtml(String(result.port))}/webhook/ycloud</code>`;
+      if(result.whatsapp === 'ycloud') {
+        extra += '<br>📲 <b>WhatsApp OFICIAL (YCloud)</b> activado.';
+        if(result.webhookRegistered) {
+          extra += `<br>🔗 Webhook registrado automáticamente ✓ <code>${escHtml(result.webhookUrl||'')}</code>`;
+        } else {
+          extra += `<br>⚠️ No se pudo registrar el webhook solo${result.webhookError ? ' ('+escHtml(result.webhookError)+')' : ''}. Regístralo a mano en YCloud: <code>${escHtml(result.webhookUrl || ('http://TU-IP:'+result.port+'/webhook/ycloud'))}</code>`;
+        }
+      }
       else extra += '<br>📱 WhatsApp por <b>QR</b>: abre el bot y escanéalo con el número del cliente.';
       msg.innerHTML = `<span style="color:var(--green-text)">✅ Bot creado.${extra}</span>`;
       setTimeout(()=>{ fetchClients(); }, 3000);

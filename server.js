@@ -1059,23 +1059,43 @@ app.get('/api/clients/:port/live', async (req, res) => {
 });
 
 // Crear nuevo cliente
-app.post('/api/clients', (req, res) => {
+app.post('/api/clients', async (req, res) => {
   try {
     const { folderName, businessName, ownerPhone, plan, port, groqApiKey, ycloudApiKey, ycloudFrom } = req.body;
     if (!folderName || !businessName || !port) {
       return res.status(400).json({ error: 'Faltan datos obligatorios' });
     }
+    const numPort = parseInt(port, 10);
     const result = createClient({
       folderName,
       businessName,
       ownerPhone: ownerPhone || '',
       plan: plan || 'basico',
-      port: parseInt(port, 10),
+      port: numPort,
       groqApiKey: groqApiKey || '',     // 🔑 llave de IA propia del negocio (opcional)
       ycloudApiKey: ycloudApiKey || '', // 📲 WhatsApp oficial YCloud (opcional)
       ycloudFrom: ycloudFrom || '',
       templateDir: __dirname
     });
+
+    // 🔗 Auto-registro del webhook en YCloud (si dio llave + número)
+    if (result && result.success && ycloudApiKey && ycloudFrom) {
+      // Host público: PUBLIC_HOST (solo IP/dominio, sin puerto) o el host de esta petición
+      const proto = process.env.PUBLIC_PROTO || 'http';
+      let host = process.env.PUBLIC_HOST || (req.get('host') || '').split(':')[0];
+      const webhookUrl = `${proto}://${host}:${numPort}/webhook/ycloud`;
+      try {
+        const reg = await ycloud.registerWebhook(ycloudApiKey, webhookUrl);
+        result.webhookRegistered = reg.ok;
+        result.webhookUrl = webhookUrl;
+        if (!reg.ok) result.webhookError = reg.error;
+      } catch (e) {
+        result.webhookRegistered = false;
+        result.webhookUrl = webhookUrl;
+        result.webhookError = e.message;
+      }
+    }
+
     res.json(result);
   } catch (e) {
     console.error('Error al crear cliente:', e);

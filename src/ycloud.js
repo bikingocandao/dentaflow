@@ -51,4 +51,35 @@ async function sendMessage(to, text) {
   }
 }
 
-module.exports = { isEnabled, sendMessage, normalizeNumber };
+/**
+ * Registra (da de alta) un webhook en YCloud para recibir mensajes entrantes.
+ * Así no hay que entrar al panel de YCloud a mano.
+ * @param {string} apiKey  llave de YCloud del cliente
+ * @param {string} url     URL pública del webhook (ej http://IP:PUERTO/webhook/ycloud)
+ * @param {string[]} [events] eventos a suscribir
+ * @returns {Promise<{ok:boolean, id?:string, error?:string}>}
+ */
+async function registerWebhook(apiKey, url, events) {
+  if (!apiKey || !url) return { ok: false, error: 'Falta apiKey o url' };
+  const evs = events && events.length ? events : ['whatsapp.inbound_message.received'];
+  try {
+    const resp = await fetch(`${API_BASE}/webhookEndpoints`, {
+      method: 'POST',
+      headers: { 'X-API-Key': apiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, events: evs, enabled: true })
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (resp.ok) {
+      console.log(`🔗 [YCloud] Webhook registrado: ${url}`);
+      return { ok: true, id: data && data.id };
+    }
+    const errMsg = (data && (data.message || (data.error && data.error.message))) || ('HTTP ' + resp.status);
+    console.error(`❌ [YCloud] No se pudo registrar webhook (${resp.status}):`, JSON.stringify(data).slice(0, 300));
+    return { ok: false, error: errMsg };
+  } catch (e) {
+    console.error('❌ [YCloud] Excepción al registrar webhook:', e.message);
+    return { ok: false, error: e.message };
+  }
+}
+
+module.exports = { isEnabled, sendMessage, normalizeNumber, registerWebhook };

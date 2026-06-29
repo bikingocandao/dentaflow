@@ -31,17 +31,28 @@ que quede 100% funcionando.
 - Clic en **Crear y Levantar**.
 - Anota el **usuario y clave del panel** que te muestra al terminar.
 
-### 3) Registrar el WEBHOOK en YCloud (¡el paso clave!)
-En el panel de YCloud del cliente → Webhooks → agrega:
+### 3) Registrar el WEBHOOK en YCloud — ¡AHORA ES AUTOMÁTICO! ✅
+Al crear el bot con YCloud, el sistema **registra el webhook solo** en YCloud
+(evento `whatsapp.inbound_message.received`). Te avisa en pantalla si quedó
+registrado ✓ o si hay que hacerlo a mano.
+
+**Para que la URL sea correcta**, dile al sistema cuál es tu IP/dominio público
+poniendo esta variable en el `.env` del **panel maestro** (el que crea los bots):
+```
+PUBLIC_HOST=TU-IP-O-DOMINIO     (solo la IP o dominio, SIN http y SIN puerto)
+PUBLIC_PROTO=http               (o https si usas dominio con certificado)
+```
+Si no la pones, intenta adivinar la IP desde la conexión (suele funcionar en VPS).
+
+**Si por alguna razón no se registró solo**, hazlo a mano en YCloud → Webhooks:
 ```
 http://TU-IP-DEL-VPS:PUERTO/webhook/ycloud
 ```
 - Cambia `PUERTO` por el del bot (3001, 3002, …).
-- Evento a suscribir: **whatsapp.inbound_message.received** (mensaje entrante).
+- Evento: **whatsapp.inbound_message.received**.
 
 > ⚠️ YCloud necesita una URL pública. En el VPS funciona con `http://IP:PUERTO`.
-> Para que se vea más profesional/seguro, lo ideal es un **dominio con HTTPS**
-> (ver "Pendientes recomendados" abajo).
+> Para más seguridad/profesionalismo, usa un **dominio con HTTPS** (pendientes abajo).
 
 ### 4) Probar
 - Desde otro celular, escribe al número del cliente.
@@ -64,8 +75,8 @@ http://TU-IP-DEL-VPS:PUERTO/webhook/ycloud
       (recordatorios fuera de la ventana de 24h). Meta exige plantilla aprobada.
 - [ ] **Soporte de imágenes/audio entrantes por YCloud** (hoy el webhook solo
       procesa `type === 'text'`).
-- [ ] **Auto-registro del webhook** vía API de YCloud al crear el bot (hoy se
-      registra a mano en el panel de YCloud).
+- [x] ~~**Auto-registro del webhook** vía API de YCloud al crear el bot~~ ✅ HECHO
+      (usa `PUBLIC_HOST`/`PUBLIC_PROTO` del panel maestro para armar la URL).
 - [ ] **Editar YCloud de un bot ya creado** desde el panel (hoy se pone al crear;
       para cambiarlo se edita el `.env` del bot y se reinicia con `pm2 restart`).
 
