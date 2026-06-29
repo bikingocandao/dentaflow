@@ -3164,7 +3164,8 @@ function renderAppointments() {
   const data = filter ? allAppointments.filter(a => a.status === filter) : allAppointments;
   if(!data.length) { body.innerHTML = '<tr class="empty-row"><td colspan="6">No hay citas registradas</td></tr>'; return; }
   body.innerHTML = [...data].reverse().map(a => {
-    const phone = (a.jid||'').replace('@s.whatsapp.net','');
+    const _jidPhone = (a.jid||'').endsWith('@lid') ? '' : (a.jid||'').replace('@s.whatsapp.net','');
+    const phone = (a.telefono||'') || _jidPhone;
     const statusBadge = '<span class="badge b-' + (a.status||'confirmada') + '">' + (a.status||'confirmada') + '</span>';
     let actions = '';
     if(a.status === 'confirmada') {
@@ -3521,7 +3522,8 @@ function renderCalendar() {
         var hr = escHtml(a.hora||'');
         var svc = escHtml(a.servicio||'');
         var src = a.source === 'manual' ? '👤' : '🤖';
-        var phone = (a.jid||'').replace('@s.whatsapp.net','').replace('@lid','') || (a.telefono||'');
+        var jidPhone = (a.jid||'').endsWith('@lid') ? '' : (a.jid||'').replace('@s.whatsapp.net','');
+        var phone = (a.telefono||'') || jidPhone;
         var originText = a.source === 'manual' ? 'Manual (Recepción)' : 'Chatbot IA';
         var tip = nm + ' | ' + svc + ' | ' + hr + ' | Registro: ' + originText + (phone ? ' | Tel: '+phone : '');
         var id = a.id || '';
@@ -5403,7 +5405,7 @@ async function exportCitasToExcel() {
   const headers = ['Paciente', 'Teléfono', 'Servicio', 'Fecha', 'Hora', 'Estado', 'Origen'];
   const rows = data.map(a => [
     a.nombre || '',
-    (a.jid || a.telefono || '').replace('@s.whatsapp.net', ''),
+    (a.telefono || ((a.jid||'').endsWith('@lid') ? '' : (a.jid||''))).replace('@s.whatsapp.net', ''),
     a.servicio || '',
     a.fecha || '',
     a.hora || '',

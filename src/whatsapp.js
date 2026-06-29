@@ -291,7 +291,9 @@ async function processMessage(msg) {
   // Extraer cita si la IA la detectó
   const appointmentData = extractAppointmentData(rawResponse);
   if (appointmentData) {
-    const apt = conversations.saveAppointment(jid, appointmentData);
+    // Inyectar el teléfono real (resuelto arriba, aun si llegó como @lid)
+    if (!appointmentData.telefono && phone) appointmentData.telefono = phone;
+    const apt = conversations.saveAppointment(contactJid, appointmentData);
     console.log(`📅 Cita agendada: ${apt.id}`, appointmentData);
     emitToAll('newAppointment', apt);
 

@@ -547,10 +547,17 @@ function setClientName(jid, name) {
  * Guarda una cita agendada.
  */
 function saveAppointment(jid, appointmentData) {
+  // 📱 Teléfono real: si el jid es @lid (no es teléfono) no lo usamos.
+  // Preferimos el teléfono explícito; si no, lo sacamos del jid de WhatsApp.
+  const jidIsLid = jid && String(jid).endsWith('@lid');
+  const phoneFromJid = (jid && !jidIsLid) ? String(jid).split('@')[0].replace(/[^0-9]/g, '') : '';
+  const phone = (appointmentData.telefono ? String(appointmentData.telefono).replace(/[^0-9]/g, '') : '') || phoneFromJid;
+
   const appointment = {
     id: `APT-${Date.now()}`,
     jid,
     ...appointmentData,
+    telefono: phone, // ← siempre guardamos el teléfono para que salga en la cita
     createdAt: new Date().toISOString(),
     status: 'confirmada',
     reminderSent: false
@@ -558,8 +565,7 @@ function saveAppointment(jid, appointmentData) {
   appointments.push(appointment);
   stats.appointmentsBooked++;
 
-  // Auto-crear paciente
-  const phone = jid ? jid.split('@')[0] : (appointmentData.telefono || '');
+  // Auto-crear paciente con el teléfono real
   checkAndCreatePatient(appointmentData.nombre, phone, jid, appointmentData.correo);
 
   // Persistir en disco
