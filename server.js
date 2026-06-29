@@ -201,7 +201,13 @@ app.get('/api/debug-env', (req, res) => {
     adminPasswordSet: !!process.env.ADMIN_PASSWORD,
     supabaseUrlSet: !!process.env.SUPABASE_URL || !!process.env.SUPABASE_URL_KEY,
     supabaseKeySet: !!process.env.SUPABASE_KEY || !!process.env.SUPABASE_ANON_KEY || !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    supabaseUrl: process.env.SUPABASE_URL || 'not set'
+    supabaseUrl: process.env.SUPABASE_URL || 'not set',
+    ycloudKeySet: !!process.env.YCLOUD_API_KEY,
+    ycloudFrom: process.env.YCLOUD_FROM || 'not set',
+    ycloudEnabled: !!(process.env.YCLOUD_API_KEY && process.env.YCLOUD_FROM),
+    ownerPhoneSet: !!process.env.OWNER_PHONE,
+    groqKeySet: !!process.env.GROQ_API_KEY,
+    openrouterKeySet: !!process.env.OPENROUTER_API_KEY
   });
 });
 
