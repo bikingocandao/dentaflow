@@ -1865,6 +1865,17 @@
               <select class="form-input" id="nc-plan"><option value="basico">Básico —  US$150/mes</option><option value="estandar">Estándar —  US$250/mes</option><option value="completo" selected>Completo —  US$400/mes</option></select>
             </div>
             <div class="form-field"><label class="form-label">Puerto único</label><input type="number" class="form-input" id="nc-port" placeholder="3001"></div>
+            <div class="form-field"><label class="form-label">Llave de Groq (IA) <span style="color:var(--text-tertiary);font-weight:normal">— opcional</span></label><input type="text" class="form-input" id="nc-groq" placeholder="gsk_... (si se deja vacío usa la del sistema)"></div>
+          </div>
+          <div style="margin:6px 0 10px;padding:10px 12px;border:1px dashed var(--blue-border,#bfdbfe);border-radius:8px;background:var(--blue-bg,#eff6ff)">
+            <div style="font-size:12px;font-weight:700;color:var(--blue-text,#1e40af);margin-bottom:8px"><i class="ti ti-brand-whatsapp"></i> WhatsApp OFICIAL por YCloud (anti-baneo) — opcional</div>
+            <div class="form-row">
+              <div class="form-field"><label class="form-label">YCloud API Key</label><input type="text" class="form-input" id="nc-ycloud-key" placeholder="Clave API de YCloud del cliente"></div>
+              <div class="form-field"><label class="form-label">Número YCloud (From)</label><input type="text" class="form-input" id="nc-ycloud-from" placeholder="+18290000000"></div>
+            </div>
+            <div style="font-size:11px;color:var(--text-tertiary);margin-top:6px">Si llenas estos 2 campos, el bot usará la API oficial de WhatsApp (no se banea). Si los dejas vacíos, el cliente conecta por QR. Recuerda registrar en YCloud el webhook: <code>http://TU-IP:PUERTO/webhook/ycloud</code></div>
+          </div>
+          <div class="form-row">
             <div class="form-field" style="align-self:flex-end"><button class="btn btn-primary" style="width:100%;justify-content:center" onclick="createNewClient()" id="btn-create-client"><i class="ti ti-rocket"></i>Crear y Levantar</button></div>
           </div>
           <div id="nc-msg" style="margin-top:10px;font-size:12px;text-align:center"></div>
@@ -3953,16 +3964,23 @@ async function createNewClient() {
   const ownerPhone = document.getElementById('nc-owner').value.trim();
   const plan = document.getElementById('nc-plan').value;
   const port = document.getElementById('nc-port').value.trim();
+  const groqApiKey = (document.getElementById('nc-groq')?.value || '').trim();
+  const ycloudApiKey = (document.getElementById('nc-ycloud-key')?.value || '').trim();
+  const ycloudFrom = (document.getElementById('nc-ycloud-from')?.value || '').trim();
   const msg = document.getElementById('nc-msg');
   const btn = document.getElementById('btn-create-client');
   if(!folderName || !businessName || !port) { msg.innerHTML = '<span style="color:var(--red-text)">❌ Completa: Carpeta, Nombre y Puerto</span>'; return; }
   btn.disabled = true; btn.textContent = 'Creando...';
   try {
-    const res = await fetch('/api/clients', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({folderName,businessName,ownerPhone,plan,port}) });
+    const res = await fetch('/api/clients', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({folderName,businessName,ownerPhone,plan,port,groqApiKey,ycloudApiKey,ycloudFrom}) });
     const result = await res.json();
     if(result.success) {
-      msg.innerHTML = '<span style="color:var(--green-text)">✅ Bot creado. Aparecerá en la lista en unos segundos.</span>';
-      setTimeout(()=>{ fetchClients(); document.getElementById('new-client-form').style.display='none'; msg.innerHTML=''; }, 3000);
+      let extra = '';
+      if(result.adminUser) extra += `<br><b>Panel:</b> usuario <code>${escHtml(result.adminUser)}</code> · clave <code>${escHtml(result.adminPass||'')}</code>`;
+      if(result.whatsapp === 'ycloud') extra += `<br>📲 <b>WhatsApp OFICIAL (YCloud)</b> activado. Registra el webhook en YCloud: <code>http://TU-IP:${escHtml(String(result.port))}/webhook/ycloud</code>`;
+      else extra += '<br>📱 WhatsApp por <b>QR</b>: abre el bot y escanéalo con el número del cliente.';
+      msg.innerHTML = `<span style="color:var(--green-text)">✅ Bot creado.${extra}</span>`;
+      setTimeout(()=>{ fetchClients(); }, 3000);
     } else { msg.innerHTML = `<span style="color:var(--red-text)">❌ ${escHtml(result.error||'Error')}</span>`; }
   } catch(e) { msg.innerHTML = '<span style="color:var(--red-text)">❌ Error de conexión</span>'; }
   finally { btn.disabled = false; btn.innerHTML = '<i class="ti ti-rocket"></i>Crear y Levantar'; }

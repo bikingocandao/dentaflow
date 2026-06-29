@@ -1061,7 +1061,7 @@ app.get('/api/clients/:port/live', async (req, res) => {
 // Crear nuevo cliente
 app.post('/api/clients', (req, res) => {
   try {
-    const { folderName, businessName, ownerPhone, plan, port, groqApiKey } = req.body;
+    const { folderName, businessName, ownerPhone, plan, port, groqApiKey, ycloudApiKey, ycloudFrom } = req.body;
     if (!folderName || !businessName || !port) {
       return res.status(400).json({ error: 'Faltan datos obligatorios' });
     }
@@ -1071,7 +1071,9 @@ app.post('/api/clients', (req, res) => {
       ownerPhone: ownerPhone || '',
       plan: plan || 'basico',
       port: parseInt(port, 10),
-      groqApiKey: groqApiKey || '',   // 🔑 llave de IA propia del negocio (opcional)
+      groqApiKey: groqApiKey || '',     // 🔑 llave de IA propia del negocio (opcional)
+      ycloudApiKey: ycloudApiKey || '', // 📲 WhatsApp oficial YCloud (opcional)
+      ycloudFrom: ycloudFrom || '',
       templateDir: __dirname
     });
     res.json(result);

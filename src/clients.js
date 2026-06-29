@@ -153,6 +153,8 @@ function createClient(options) {
   var port = options.port;
   var templateDir = options.templateDir;
   var groqApiKey = options.groqApiKey; // 🔑 llave de IA propia de este negocio (opcional)
+  var ycloudApiKey = options.ycloudApiKey; // 📲 WhatsApp oficial YCloud (opcional)
+  var ycloudFrom = options.ycloudFrom;
 
   var rootDir = path.resolve(templateDir, '..');
   var clientDir = path.join(rootDir, folderName);
@@ -170,16 +172,43 @@ function createClient(options) {
   fs.mkdirSync(path.join(dataDir, 'conversations'), { recursive: true });
   fs.mkdirSync(path.join(clientDir, 'logs'), { recursive: true });
 
-  // 3. Crear .env
-  var envContent = [
+  // 3. Crear .env COMPLETO (hereda Supabase/admin del sistema si no se pasan)
+  var jwtSecret = 'jwt-' + folderName + '-' + Math.random().toString(36).slice(2, 10);
+  var adminUser = (options.adminUser || folderName);
+  var adminPass = (options.adminPass || ('clave' + Math.floor(1000 + Math.random() * 9000)));
+  var envLines = [
     '# ' + businessName.toUpperCase() + ' — CHATBOT IA',
     'GROQ_API_KEY=' + (groqApiKey || process.env.GROQ_API_KEY || ''),
     'PORT=' + port,
     'PLAN_ACTIVO=' + plan,
     'AI_MODEL=llama-3.3-70b-versatile',
-    'OWNER_PHONE=' + ownerPhone
-  ].join('\n') + '\n';
+    'OWNER_PHONE=' + ownerPhone,
+    'BOT_NAME=' + folderName,
+    'AUTH_DIR=' + path.join(clientDir, 'auth_info'),
+    '',
+    '# --- Base de datos en la nube (Supabase) ---',
+    'SUPABASE_URL=' + (process.env.SUPABASE_URL || ''),
+    'SUPABASE_KEY=' + (process.env.SUPABASE_KEY || ''),
+    '',
+    '# --- Acceso al panel admin ---',
+    'ADMIN_USERNAME=' + adminUser,
+    'ADMIN_PASSWORD=' + adminPass,
+    'JWT_SECRET=' + jwtSecret
+  ];
+  // 📲 WhatsApp OFICIAL por YCloud (solo si se proporcionó)
+  if (ycloudApiKey && ycloudFrom) {
+    var ycFrom = String(ycloudFrom).replace(/[^0-9]/g, '');
+    if (ycFrom.length === 10) ycFrom = '1' + ycFrom;
+    envLines.push('');
+    envLines.push('# --- WhatsApp OFICIAL (YCloud) — anti-baneo ---');
+    envLines.push('YCLOUD_API_KEY=' + ycloudApiKey);
+    envLines.push('YCLOUD_FROM=+' + ycFrom);
+  }
+  var envContent = envLines.join('\n') + '\n';
   fs.writeFileSync(path.join(clientDir, '.env'), envContent);
+  // Guardar credenciales del panel para mostrarlas a quien crea el bot
+  options._adminUser = adminUser;
+  options._adminPass = adminPass;
 
   // 4. Crear config.json limpio
   var config = {
@@ -227,7 +256,17 @@ function createClient(options) {
     console.error('⚠️ Error iniciando PM2:', error.message);
   }
 
-  return { success: true, url: 'http://localhost:' + port, folder: folderName, port: port };
+  var ycloudOn = !!(ycloudApiKey && ycloudFrom);
+  return {
+    success: true,
+    url: 'http://localhost:' + port,
+    folder: folderName,
+    port: port,
+    adminUser: options._adminUser,
+    adminPass: options._adminPass,
+    whatsapp: ycloudOn ? 'ycloud' : 'qr',
+    ycloudWebhook: ycloudOn ? ('/webhook/ycloud (regístralo en YCloud apuntando a http://TU-IP:' + port + '/webhook/ycloud)') : null
+  };
 }
 
 module.exports = { createClient, getClientsList, getClientLiveStatus };
