@@ -245,8 +245,22 @@ async function processMessage(msg) {
   if (!text.trim()) return;
 
   const jid = msg.key.remoteJid;
-  const phone = jid.replace('@s.whatsapp.net', '');
   const pushName = msg.pushName || '';
+
+  // 📱 NÚMERO REAL: WhatsApp/Meta a veces entrega un "@lid" (identificador
+  // anónimo interno, ej: 12412623302@lid) en lugar del teléfono. El número
+  // verdadero viene en msg.key.senderPn / remoteJidAlt. Lo resolvemos para
+  // NO guardar el código interno en la columna TELÉFONO.
+  let phone = jid.replace('@s.whatsapp.net', '').replace('@lid', '');
+  let contactJid = jid;
+  if (jid.endsWith('@lid')) {
+    const realJid = msg.key.senderPn || msg.key.remoteJidAlt || msg.key.participantPn || '';
+    const realPhone = String(realJid).replace(/[^0-9]/g, '');
+    if (realPhone) {
+      phone = realPhone;
+      contactJid = realPhone + '@s.whatsapp.net'; // jid enviable para recordatorios
+    }
+  }
 
   console.log(`📩 [${phone}] ${pushName}: ${text}`);
 
@@ -261,7 +275,7 @@ async function processMessage(msg) {
   // No duplica (busca por teléfono) y actualiza el nombre cuando llega uno real.
   try {
     const contactName = conversations.getClientName(jid) || pushName || ('Contacto ' + phone);
-    conversations.checkAndCreatePatient(contactName, phone, jid, '');
+    conversations.checkAndCreatePatient(contactName, phone, contactJid, '');
   } catch (e) { /* best-effort, nunca rompe el flujo */ }
 
   // Marcar como "leído"
