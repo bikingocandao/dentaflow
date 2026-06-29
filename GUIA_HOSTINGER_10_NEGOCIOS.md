@@ -62,6 +62,21 @@ Esto crea la carpeta base `/root/dentaflow`. **No la toques** — la usaremos de
 
 ## 🏢 FASE 5 — Crear el NEGOCIO #1
 
+### ⭐ Forma FÁCIL (recomendada): el script que pregunta todo
+Desde `/root`, ejecuta:
+```bash
+bash dentaflow/crear-negocio.sh
+```
+Te va preguntando: nombre del negocio, puerto (te sugiere el libre), número del
+dueño, llave de Groq, usuario/clave del panel y (opcional) YCloud. Al terminar
+crea la carpeta, el `.env`, instala todo y lo **arranca solo con PM2**.
+Te muestra el link del panel y la clave. **Repite ese mismo comando por cada negocio.**
+
+> Si usas el script, ya terminaste con la creación: salta a la **FASE 7**.
+
+---
+
+### Forma MANUAL (si prefieres hacerlo a mano)
 Cada negocio vive en su propia carpeta. Para el negocio 1:
 
 ```bash
